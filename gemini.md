@@ -42,4 +42,35 @@ Dekogram is a private, clean fork of the official Telegram Android client (`DrKL
 * **`BuildVars.java`**: Set `CHECK_UPDATES = false` to prevent in-app prompts downloading official APK updates over this build.
 
 ### 5. Automated Cloud CI Build
-* **`.github/workflows/build-apk.yml`**: Added GitHub Actions workflow to build the standalone debug APK (`:TMessagesProj_AppStandalone:assembleAfatDebug`) with JDK 17 and Android SDK/NDK, uploading the APK as a downloadable artifact.
+* **`.github/workflows/build-apk.yml`**: Added GitHub Actions workflow to build the standalone debug APK (`:TMessagesProj_AppStandalone:assembleAfatDebug`) with JDK 17 and Android SDK/NDK, uploading the APK as a downloadable artifact. Added runner disk cleanup step.
+* **`build.gradle` (TMessagesProj & TMessagesProj_AppStandalone)**: Filtered ABIs to `arm64-v8a` and `armeabi-v7a` to avoid runner disk exhaustion and speed up compilation.
+
+### 6. Multi-Account Limit (Increased to 10)
+* **`Defines.h`**: Increased `MAX_ACCOUNT_COUNT` from 5 to 10.
+* **`ConnectionsManager.cpp`**: Added instance switch cases 4 through 9 in `getInstance(instanceNum)`.
+* **`UserConfig.java`**: Set `MAX_ACCOUNT_DEFAULT_COUNT = 10`, `MAX_ACCOUNT_COUNT = 10`, and forced `getMaxAccountCount()` to return 10.
+
+### 7. Hide Stories Bar
+* **`DialogsActivity.java`**: Set `dialogStoriesCell` visibility to `View.GONE` and suppressed stories bar rendering in `updateStoriesVisibility()` to prevent layout shifts.
+
+### 8. Block Sponsored Messages & Video Ads
+* **`MessagesController.java`**: Forced `getSponsoredMessages()` to return `null` immediately and `isSponsoredDisabled()` to return `true`.
+* **`VideoAds.java`**: Emptied `load()` to block sponsored video ad network fetch.
+* **`ChatActivity.java`**: Forced `getSponsoredMessagesCount()` to return `0`.
+
+### 9. Strip Trackers & Telemetry
+* **`LaunchActivity.java`**: Removed `ApplicationLoader.startAppCenter()` initialization and `FirebaseUserActions` indexing calls.
+
+### 10. Accidental Action Confirmations & Voice/Video Note Preview
+* **`VoIPHelper.java`**: Added confirmation dialog in `startCall` before initiating voice/video calls.
+* **`ChatActivityEnterView.java`**: Added confirmation dialog before sending stickers. Switched voice and video note touch release from immediate send (`stopRecording(1)`) to review draft state (`stopRecording(2)`).
+
+### 11. Preserve Original Filenames on Save
+* **`MediaController.java`**: Forwarded custom `name` parameter to `saveFileInternal` on Android 10+ scoped storage and legacy storage, appending extension if absent.
+* **`ChatActivity.java`**: Passed `FileLoader.getDocumentFileName` into `MediaController.saveFile()` when saving media.
+* **`PhotoViewer.java`**: Extracted and passed `FileLoader.getDocumentFileName` into `MediaController.saveFile()` when saving media.
+
+### 12. Open Video in External Player
+* **`ChatActivity.java`**: Added `OPTION_OPEN_EXTERNAL_PLAYER` ("Open in...") to video message action menus, launching `AndroidUtilities.openForView` or starting download if uncached.
+* **`PhotoViewer.java`**: Passed `restrict = false` in `gallery_menu_openin` to allow external video player playback.
+* **`AndroidUtilities.java`**: Resolved message MIME types and checked attach path fallbacks in `openForView()`.

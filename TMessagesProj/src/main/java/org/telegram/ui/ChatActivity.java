@@ -1234,6 +1234,7 @@ public class ChatActivity extends BaseFragment implements
     public final static int OPTION_EDIT_SCHEDULE_TIME = 102;
     public final static int OPTION_SPEED_PROMO = 103;
     public final static int OPTION_OPEN_PROFILE = 104;
+    public final static int OPTION_OPEN_EXTERNAL_PLAYER = 105;
     public final static int OPTION_FACT_CHECK = 106;
     public final static int OPTION_EDIT_PRICE = 107;
     public final static int OPTION_GIFT = 108;
@@ -26249,14 +26250,7 @@ public class ChatActivity extends BaseFragment implements
     }
 
     private int getSponsoredMessagesCount() {
-        int sponsoredMessagesCount = 0;
-        while (sponsoredMessagesCount < messages.size()) {
-            if (!messages.get(sponsoredMessagesCount).isSponsored()) {
-                break;
-            }
-            sponsoredMessagesCount++;
-        }
-        return sponsoredMessagesCount;
+        return 0;
     }
 
     private void processDeletedMessages(ArrayList<Integer> markAsDeletedMessages, long channelId, boolean sent) {
@@ -33298,7 +33292,8 @@ public class ChatActivity extends BaseFragment implements
                 return;
             }
         }
-        MediaController.saveFile(path, getParentActivity(), messageObject.isVideo() ? 1 : 0, null, null);
+        String originalDocName = messageObject.getDocument() != null ? FileLoader.getDocumentFileName(messageObject.getDocument()) : null;
+        MediaController.saveFile(path, getParentActivity(), messageObject.isVideo() ? 1 : 0, originalDocName, null);
     }
 
     private void processSelectedOption(int option) {
@@ -33600,8 +33595,44 @@ public class ChatActivity extends BaseFragment implements
                         break;
                     }
                 }
-                MediaController.saveFile(path, getParentActivity(), 0, null, null);
+                String origName = selectedObject != null && selectedObject.getDocument() != null ? FileLoader.getDocumentFileName(selectedObject.getDocument()) : null;
+                MediaController.saveFile(path, getParentActivity(), 0, origName, null);
                 BulletinFactory.createSaveToGalleryBulletin(this, selectedObject.isVideo() && !selectedObject.isLivePhoto(), selectedObject.isLivePhoto(), themeDelegate).show();
+                break;
+            }
+            case OPTION_OPEN_EXTERNAL_PLAYER: {
+                if (selectedObject == null || getParentActivity() == null) {
+                    break;
+                }
+                File f = null;
+                if (selectedObject.messageOwner.attachPath != null && selectedObject.messageOwner.attachPath.length() != 0) {
+                    f = new File(selectedObject.messageOwner.attachPath);
+                }
+                if (f == null || !f.exists()) {
+                    f = FileLoader.getInstance(currentAccount).getPathToMessage(selectedObject.messageOwner);
+                }
+                if (f == null || !f.exists()) {
+                    f = FileLoader.getInstance(currentAccount).getPathToMessage(selectedObject.messageOwner, true, true);
+                }
+                if (f != null && f.exists()) {
+                    try {
+                        if (!AndroidUtilities.openForView(selectedObject, getParentActivity(), themeDelegate, false)) {
+                            alertUserOpenError(selectedObject);
+                        }
+                    } catch (Exception e) {
+                        FileLog.e(e);
+                        alertUserOpenError(selectedObject);
+                    }
+                } else {
+                    if (FileLoader.getInstance(currentAccount).isLoadingFile(selectedObject.getFileName())) {
+                        BulletinFactory.of(this).createSimpleBulletin(R.raw.chats_infotip, LocaleController.getString(R.string.PleaseStreamDownload)).show();
+                    } else if (selectedObject.getDocument() != null) {
+                        getFileLoader().loadFile(selectedObject.getDocument(), selectedObject, 1, 0);
+                        BulletinFactory.of(this).createSimpleBulletin(R.raw.chats_infotip, LocaleController.getString(R.string.Downloading)).show();
+                    } else {
+                        alertUserOpenError(selectedObject);
+                    }
+                }
                 break;
             }
             case OPTION_REPLY: {
@@ -46006,6 +46037,9 @@ public class ChatActivity extends BaseFragment implements
                     if (!noforwardsOrPaidMedia && !selectedObject.hasRevealedExtendedMedia()) {
                         if (selectedObject.isVideo()) {
                             if (!selectedObject.needDrawBluredPreview()) {
+                                items.add(LocaleController.getString(R.string.OpenInExternalApp));
+                                options.add(OPTION_OPEN_EXTERNAL_PLAYER);
+                                icons.add(R.drawable.msg_openin);
                                 items.add(LocaleController.getString(R.string.SaveToGallery));
                                 options.add(OPTION_SAVE_TO_GALLERY);
                                 icons.add(R.drawable.msg_gallery);
@@ -46025,6 +46059,11 @@ public class ChatActivity extends BaseFragment implements
                                 items.add(LocaleController.getString(R.string.SaveToGIFs));
                                 options.add(OPTION_ADD_TO_GIFS);
                                 icons.add(R.drawable.msg_gif);
+                            }
+                            if (selectedObject.isVideo()) {
+                                items.add(LocaleController.getString(R.string.OpenInExternalApp));
+                                options.add(OPTION_OPEN_EXTERNAL_PLAYER);
+                                icons.add(R.drawable.msg_openin);
                             }
                             items.add(LocaleController.getString(R.string.SaveToDownloads));
                             options.add(OPTION_SAVE_TO_DOWNLOADS_OR_MUSIC);
@@ -46066,6 +46105,11 @@ public class ChatActivity extends BaseFragment implements
                     }
                 } else if (type == 6 && !noforwardsOrPaidMedia && !selectedObject.hasRevealedExtendedMedia()) {
                     if (!selectedObject.needDrawBluredPreview() && !selectedObject.isVoiceOnce() && !selectedObject.isRoundOnce()) {
+                        if (selectedObject.isVideo()) {
+                            items.add(LocaleController.getString(R.string.OpenInExternalApp));
+                            options.add(OPTION_OPEN_EXTERNAL_PLAYER);
+                            icons.add(R.drawable.msg_openin);
+                        }
                         items.add(LocaleController.getString(R.string.SaveToGallery));
                         options.add(OPTION_SAVE_TO_GALLERY2);
                         icons.add(R.drawable.msg_gallery);

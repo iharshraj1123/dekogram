@@ -4979,7 +4979,8 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
                                 showDownloadAlert();
                             }
                         } else if (f != null && f.exists()) {
-                            MediaController.saveFile(f.toString(), parentActivity, isVideo ? 1 : 0, null, null, uri -> BulletinFactory.createSaveToGalleryBulletin(containerView, isVideo, 0xf9222222, 0xffffffff).show());
+                            String originalDocName = currentDocument != null ? FileLoader.getDocumentFileName(currentDocument) : (currentMessageObject != null && currentMessageObject.getDocument() != null ? FileLoader.getDocumentFileName(currentMessageObject.getDocument()) : null);
+                            MediaController.saveFile(f.toString(), parentActivity, isVideo ? 1 : 0, originalDocName, null, uri -> BulletinFactory.createSaveToGalleryBulletin(containerView, isVideo, 0xf9222222, 0xffffffff).show());
                         } else {
                             showDownloadAlert();
                         }
@@ -5523,7 +5524,7 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
                             Browser.openUrl(parentActivity, MessageObject.getMedia(currentMessageObject.messageOwner).webpage.url);
                             closePhoto(false, false);
                         } else if (currentMessageObject != null) {
-                            if (AndroidUtilities.openForView(currentMessageObject, parentActivity, resourcesProvider, currentMessageObject.isVideo() || currentMessageObject.isPhoto() || currentMessageObject.isSticker())) {
+                            if (AndroidUtilities.openForView(currentMessageObject, parentActivity, resourcesProvider, false)) {
                                 closePhoto(false, false);
                             } else {
                                 showDownloadAlert();
@@ -5868,7 +5869,7 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
                 f = FileLoader.getInstance(currentAccount).getPathToAttach(document, null, true, true);
             }
             if (f != null && f.exists()) {
-                MediaController.saveFile(f.toString(), parentActivity, 1, null, null, uri -> BulletinFactory.createSaveToGalleryBulletin(containerView, true, 0xf9222222, 0xffffffff).show());
+                MediaController.saveFile(f.toString(), parentActivity, 1, FileLoader.getDocumentFileName(document), null, uri -> BulletinFactory.createSaveToGalleryBulletin(containerView, true, 0xf9222222, 0xffffffff).show());
             } else {
                 ArrayList<MessageObject> messageObjects = new ArrayList<>();
                 messageObject.qualityToSave = document;

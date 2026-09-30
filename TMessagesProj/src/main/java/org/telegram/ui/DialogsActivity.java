@@ -5587,6 +5587,7 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
         };
         updateFilterTabs(true, false);
         rightSlidingDialogContainer.setOpenProgress(0f);
+        dialogStoriesCell.setVisibility(View.GONE);
         contentView.addView(dialogStoriesCell, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, DialogStoriesCell.HEIGHT_IN_DP));
         contentView.addView(rightSlidingDialogContainer, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT));
 
@@ -12742,6 +12743,13 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
     }
 
     public void updateStoriesVisibility(boolean animated) {
+        if (dialogStoriesCell != null) {
+            dialogStoriesCell.setVisibility(View.GONE);
+        }
+        dialogStoriesCellVisible = false;
+        hasStories = false;
+        hasOnlySlefStories = false;
+        if (true) return;
         if (dialogStoriesCell == null || storiesVisibilityAnimator != null || rightSlidingDialogContainer != null && rightSlidingDialogContainer.hasFragment() || searchIsShowed || actionBar == null || actionBar.isActionModeShowed() || onlySelect) {
             return;
         }

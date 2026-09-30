@@ -5499,18 +5499,18 @@ public class MediaController implements AudioManager.OnAudioFocusChangeListener,
                     Uri uri;
                     boolean result = true;
                     if (Build.VERSION.SDK_INT >= 29) {
-                        uri = saveFileInternal(type, sourceFile, null);
+                        uri = saveFileInternal(type, sourceFile, name);
                         result = uri != null;
                     } else {
                         File destFile;
                         if (type == 0) {
                             destFile = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), "Dekogram");
                             destFile.mkdirs();
-                            destFile = new File(destFile, AndroidUtilities.generateFileName(0, FileLoader.getFileExtension(sourceFile)));
+                            destFile = new File(destFile, !TextUtils.isEmpty(name) ? name : AndroidUtilities.generateFileName(0, FileLoader.getFileExtension(sourceFile)));
                         } else if (type == 1) {
                             File vDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "Dekogram" + File.separator + "Videos");
                             vDir.mkdirs();
-                            destFile = new File(vDir, AndroidUtilities.generateFileName(1, FileLoader.getFileExtension(sourceFile)));
+                            destFile = new File(vDir, !TextUtils.isEmpty(name) ? name : AndroidUtilities.generateFileName(1, FileLoader.getFileExtension(sourceFile)));
                         } else {
                             File dir;
                             if (type == 2) {
@@ -5814,6 +5814,8 @@ public class MediaController implements AudioManager.OnAudioFocusChangeListener,
             if (selectedType == 0) {
                 if (filename == null) {
                     filename = AndroidUtilities.generateFileName(0, extension);
+                } else if (extension != null && !filename.toLowerCase().endsWith("." + extension.toLowerCase())) {
+                    filename = filename + "." + extension;
                 }
                 uriToInsert = MediaStore.Images.Media.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY);
                 File dirDest = new File(Environment.DIRECTORY_PICTURES, "Dekogram");
@@ -5823,6 +5825,8 @@ public class MediaController implements AudioManager.OnAudioFocusChangeListener,
             } else if (selectedType == 1) {
                 if (filename == null) {
                     filename = AndroidUtilities.generateFileName(1, extension);
+                } else if (extension != null && !filename.toLowerCase().endsWith("." + extension.toLowerCase())) {
+                    filename = filename + "." + extension;
                 }
                 File dirDest = new File(Environment.DIRECTORY_DOWNLOADS, "Dekogram" + File.separator + "Videos");
                 contentValues.put(MediaStore.MediaColumns.RELATIVE_PATH, dirDest + File.separator);

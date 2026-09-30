@@ -3035,7 +3035,7 @@ public class ChatActivityEnterView extends FrameLayout implements
                                     });
                                     return true;
                                 }
-                                MediaController.getInstance().stopRecording(isInScheduleMode() ? 3 : 1, true, 0, voiceOnce, 0);
+                                MediaController.getInstance().stopRecording(isInScheduleMode() ? 3 : 2, true, 0, voiceOnce, 0);
                                 delegate.needStartRecordAudio(0);
                             }
                             recordingAudioVideo = false;
@@ -3154,7 +3154,7 @@ public class ChatActivityEnterView extends FrameLayout implements
                                     AlertsCreator.createScheduleDatePickerDialog(parentActivity, parentFragment.getDialogId(), (notify, scheduleDate, scheduleRepeatPeriod) -> MediaController.getInstance().stopRecording(1, notify, scheduleDate, false, 0), () -> MediaController.getInstance().stopRecording(0, false, 0, false, 0), resourcesProvider);
                                 }
                                 delegate.needStartRecordAudio(0);
-                                MediaController.getInstance().stopRecording(isInScheduleMode() ? 3 : 1, true, 0, voiceOnce, 0);
+                                MediaController.getInstance().stopRecording(isInScheduleMode() ? 3 : 2, true, 0, voiceOnce, 0);
                             }
                             recordingAudioVideo = false;
                             messageTransitionIsRunning = false;
@@ -7452,6 +7452,27 @@ public class ChatActivityEnterView extends FrameLayout implements
     }
 
     protected boolean showConfirmAlert(Runnable onConfirmed) {
+        return false;
+    }
+
+    protected boolean showStickerConfirmAlert(Runnable onConfirmed) {
+        if (getContext() != null) {
+            org.telegram.ui.ActionBar.AlertDialog.Builder builder = new org.telegram.ui.ActionBar.AlertDialog.Builder(getContext());
+            builder.setTitle(LocaleController.getString(R.string.SendStickerShort));
+            builder.setMessage(LocaleController.getString(R.string.SendStickerShort) + "?");
+            builder.setPositiveButton(LocaleController.getString(R.string.Send), (dialog, which) -> {
+                if (onConfirmed != null) {
+                    onConfirmed.run();
+                }
+            });
+            builder.setNegativeButton(LocaleController.getString(R.string.Cancel), null);
+            try {
+                builder.show();
+                return true;
+            } catch (Exception e) {
+                FileLog.e(e);
+            }
+        }
         return false;
     }
 
@@ -12342,7 +12363,7 @@ public class ChatActivityEnterView extends FrameLayout implements
                                 delegate.onMessageSend(null, notify, scheduleDate, 0, 0);
                             }
                         };
-                        if (!showConfirmAlert(runnable)) {
+                        if (!showStickerConfirmAlert(runnable)) {
                             runnable.run();
                         }
                     });
@@ -12616,7 +12637,7 @@ public class ChatActivityEnterView extends FrameLayout implements
                     }
                     MediaDataController.getInstance(currentAccount).addRecentSticker(MediaDataController.TYPE_IMAGE, parent, sticker, (int) (System.currentTimeMillis() / 1000), false);
                 };
-                if (!showConfirmAlert(runnable)) {
+                if (!showStickerConfirmAlert(runnable)) {
                     runnable.run();
                 }
             });
