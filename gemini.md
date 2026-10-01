@@ -82,7 +82,8 @@ Dekogram is a private, clean fork of the official Telegram Android client (`DrKL
 ### 14. Accelerated CI Build Pipeline
 * **`build.gradle` (TMessagesProj & TMessagesProj_AppStandalone)**: Filtered ABIs strictly to `arm64-v8a`, reduced `ndk.debugSymbolLevel` to `'NONE'`, and configured `ccache` compiler launcher for CMake.
 * **`gradle.properties`**: Enabled `org.gradle.caching=true`.
-* **`.github/workflows/build-apk.yml`**: Installed `ccache`, configured 5GB GitHub Actions cache for compiled C++ objects, and enabled Gradle `--build-cache`.
+* **`.github/workflows/build-apk.yml`**: Installed `ccache`, configured 5GB GitHub Actions cache for compiled C++ objects, enabled Gradle `--build-cache`, and configured 10GB NVMe swapfile.
+* **`gradle.properties`**: Tuned Gradle JVM args (`-Xmx4g -XX:MaxMetaspaceSize=512m`) to prevent Linux OOM killer termination during parallel Clang/CMake compilation on 7GB GitHub runners.
 
 ### 15. Automatic Media Export & Internal Directory Renaming
 * **`FileLoader.java`**: Automatically routes completed video, document, and photo downloads to `MediaController.saveFile()`, placing them immediately into public `Download/Dekogram/Videos/` (or `Download/Dekogram/`) with their original filenames upon download completion without requiring manual "Save to gallery" interaction.
