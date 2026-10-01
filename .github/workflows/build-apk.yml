@@ -10,6 +10,8 @@ jobs:
     name: Build Standalone APK
     runs-on: ubuntu-latest
     timeout-minutes: 90
+    permissions:
+      contents: write
 
     steps:
       - name: Free disk space
@@ -64,9 +66,25 @@ jobs:
       - name: Show ccache stats
         run: ccache -s
 
+      - name: Prepare APK for distribution
+        run: |
+          mkdir -p build_output
+          cp TMessagesProj_AppStandalone/build/outputs/apk/afat/debug/app.apk build_output/Dekogram.apk
+
       - name: Locate and upload APK
         uses: actions/upload-artifact@v4
         with:
           name: Dekogram-Debug-APK
-          path: TMessagesProj_AppStandalone/build/outputs/apk/**/*.apk
+          path: build_output/Dekogram.apk
           if-no-files-found: error
+
+      - name: Publish to GitHub Releases
+        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: latest
+          name: "Dekogram Latest Build"
+          body: "Direct APK download for Dekogram (arm64-v8a debug build)."
+          files: build_output/Dekogram.apk
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

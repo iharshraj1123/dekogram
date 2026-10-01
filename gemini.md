@@ -89,22 +89,24 @@ Dekogram is a private, clean fork of the official Telegram Android client (`DrKL
 * **`ImageLoader.java`, `SharedConfig.java`, `AndroidUtilities.java`, `ChatAttachAlertDocumentLayout.java`**: Renamed all internal app and media directories from `Telegram` (`Telegram Images`, `Telegram Video`, `Telegram Documents`, `Telegram Audio`, `Telegram Files`) to `Dekogram`.
 * **`MediaController.java`**: Added `context instanceof Activity` and `showProgress` guard to prevent background auto-save dialog exceptions.
 
+### 16. UI Brand Harmonization & Direct Distribution
+* **`strings.xml`**: Updated user-facing strings across storage usage ("Dekogram uses %s...", "Clear Dekogram Cache", "Dekogram Cache"), system permissions dialogs ("Dekogram needs..."), passcode lock screens ("Dekogram Locked", "Unlock Dekogram"), and version branding ("Dekogram for Android %1$s").
+* **`FilesMigrationService.java`**: Switched migration target directory from `Telegram` to `Dekogram`.
+* **`.github/workflows/build-apk.yml`**: Added GitHub Release automated publishing (`tag: latest`) delivering raw `Dekogram.apk` directly to avoid ZIP packaging errors on mobile, and flattened Actions artifact structure.
+
 ---
 
 ## Installation & Deployment
 
-### 1. Download Built APK
-* **Via GitHub Web**: Go to [Actions](https://github.com/iharshraj1123/dekogram/actions) > select the latest workflow run > download `Dekogram-Debug-APK` from the Artifacts section.
-* **Via GitHub CLI**:
-  ```bash
-  gh run download <RUN_ID> --name Dekogram-Debug-APK --dir build_artifact
-  ```
+### 1. Direct Download on Phone (No ADB Needed)
+* Download `Dekogram.apk` directly from [Dekogram Releases (Latest)](https://github.com/iharshraj1123/dekogram/releases/tag/latest).
+* Tap the downloaded `.apk` in Chrome or your file manager to install. If Google Play Protect warns about an untrusted developer certificate, tap **More details > Install anyway**.
 
 ### 2. Install on Device via ADB
 1. Connect device via USB with **USB Debugging** enabled.
 2. Push and install the APK (package runs side-by-side with official Telegram as `org.telegram.messenger.web`):
    ```bash
-   adb push build_artifact/afat/debug/app.apk /data/local/tmp/app.apk
+   adb push build_artifact/Dekogram.apk /data/local/tmp/app.apk
    adb shell pm install -r -t -d /data/local/tmp/app.apk
    adb shell rm /data/local/tmp/app.apk
    ```
