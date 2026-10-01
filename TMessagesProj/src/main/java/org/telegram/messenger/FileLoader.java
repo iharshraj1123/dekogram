@@ -1012,8 +1012,17 @@ public class FileLoader extends BaseController {
                 }
                 if (parentObject instanceof MessageObject) {
                     MessageObject messageObject = (MessageObject) parentObject;
-                    if (document != null && messageObject.putInDownloadsStore) {
-                        getDownloadController().onDownloadComplete(messageObject);
+                    if (document != null && (messageObject.putInDownloadsStore || messageObject.isVideo())) {
+                        if (messageObject.putInDownloadsStore) {
+                            getDownloadController().onDownloadComplete(messageObject);
+                        }
+                        if (!messageObject.isRoundVideo() && !messageObject.isVoice() && !messageObject.isAnyKindOfSticker()) {
+                            String fileNameToSave = getDocumentFileName(document);
+                            int mediaType = messageObject.isVideo() ? 1 : (messageObject.isDocument() ? 2 : 0);
+                            MediaController.saveFile(finalFile.getAbsolutePath(), ApplicationLoader.applicationContext, mediaType, fileNameToSave, document.mime_type, null, false);
+                        }
+                    } else if (messageObject.isPhoto() && messageObject.putInDownloadsStore) {
+                        MediaController.saveFile(finalFile.getAbsolutePath(), ApplicationLoader.applicationContext, 0, null, "image/jpeg", null, false);
                     }
                 }
 
