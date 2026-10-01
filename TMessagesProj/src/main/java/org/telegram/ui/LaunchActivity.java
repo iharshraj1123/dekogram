@@ -107,6 +107,7 @@ import org.telegram.messenger.ChatObject;
 import org.telegram.messenger.ContactsController;
 import org.telegram.messenger.ContactsLoadingObserver;
 import org.telegram.messenger.DialogObject;
+import org.telegram.messenger.DownloadForegroundService;
 import org.telegram.messenger.FileLoader;
 import org.telegram.messenger.FileLog;
 import org.telegram.messenger.FingerprintController;
@@ -6743,6 +6744,9 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
         boolean doNotPause = false;
         if (ApplicationLoader.applicationLoaderInstance != null) {
             doNotPause = ApplicationLoader.applicationLoaderInstance.onPause();
+        }
+        if (DownloadForegroundService.hasActiveDownloads()) {
+            doNotPause = true;
         }
         ConnectionsManager.getInstance(currentAccount).setAppPaused(!doNotPause, false);
         if (PhotoViewer.hasInstance() && PhotoViewer.getInstance().isVisible()) {

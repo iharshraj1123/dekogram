@@ -94,6 +94,11 @@ Dekogram is a private, clean fork of the official Telegram Android client (`DrKL
 * **`FilesMigrationService.java`**: Switched migration target directory from `Telegram` to `Dekogram`.
 * **`.github/workflows/build-apk.yml`**: Added GitHub Release automated publishing (`tag: latest`) delivering raw `Dekogram.apk` directly to avoid ZIP packaging errors on mobile, and flattened Actions artifact structure.
 
+### 17. Persistent Background Downloads with Notification Service
+* **`DownloadForegroundService.java`**: Created dataSync foreground service with `PARTIAL_WAKE_LOCK` and high-perf Wi-Fi lock. Renders ongoing notification with filename and progress bar. Self-terminates when downloads finish.
+* **`ConnectionsManager.java`, `LaunchActivity.java`, `ScreenReceiver.java`**: Prevented native network pausing (`native_pauseNetwork`) when app is minimized or screen turns off while downloads are active.
+* **`DownloadController.java` & `FileLoader.java`**: Hooked document and video downloads to trigger the foreground service and monitor real-time progress.
+
 ---
 
 ## Installation & Deployment

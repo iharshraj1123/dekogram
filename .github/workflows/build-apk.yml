@@ -86,5 +86,7 @@ jobs:
           name: "Dekogram Latest Build"
           body: "Direct APK download for Dekogram (arm64-v8a debug build)."
           files: build_output/Dekogram.apk
+          overwrite_files: true
+          make_latest: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

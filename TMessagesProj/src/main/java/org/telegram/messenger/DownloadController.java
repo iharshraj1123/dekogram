@@ -1499,6 +1499,7 @@ public class DownloadController extends BaseController implements NotificationCe
                 });
             }
             getNotificationCenter().postNotificationName(NotificationCenter.onDownloadingFilesChanged);
+            DownloadForegroundService.start();
         });
     }
 

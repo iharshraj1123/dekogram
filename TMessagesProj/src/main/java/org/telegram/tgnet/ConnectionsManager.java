@@ -772,6 +772,12 @@ public class ConnectionsManager extends BaseController {
             if (lastPauseTime == 0) {
                 lastPauseTime = System.currentTimeMillis();
             }
+            if (DownloadForegroundService.hasActiveDownloads()) {
+                if (BuildVars.LOGS_ENABLED) {
+                    FileLog.d("ConnectionsManager: skipping native_pauseNetwork due to active downloads");
+                }
+                return;
+            }
             native_pauseNetwork(currentAccount);
         } else {
             if (appPaused) {

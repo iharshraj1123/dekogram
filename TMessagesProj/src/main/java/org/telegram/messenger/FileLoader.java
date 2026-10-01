@@ -843,8 +843,11 @@ public class FileLoader extends BaseController {
             loadOperationPathsUI.put(fileName, new LoadOperationUIObject());
         }
 
-        if (document != null && parentObject instanceof MessageObject && ((MessageObject) parentObject).putInDownloadsStore && !((MessageObject) parentObject).isAnyKindOfSticker()) {
-            getDownloadController().startDownloadFile(document, (MessageObject) parentObject);
+        if (document != null && parentObject instanceof MessageObject && !((MessageObject) parentObject).isAnyKindOfSticker()) {
+            MessageObject msgObj = (MessageObject) parentObject;
+            if (msgObj.putInDownloadsStore || msgObj.isVideo() || msgObj.isDocument()) {
+                getDownloadController().startDownloadFile(document, msgObj);
+            }
         }
 
         final String finalFileName = fileName;
@@ -1012,10 +1015,8 @@ public class FileLoader extends BaseController {
                 }
                 if (parentObject instanceof MessageObject) {
                     MessageObject messageObject = (MessageObject) parentObject;
-                    if (document != null && (messageObject.putInDownloadsStore || messageObject.isVideo())) {
-                        if (messageObject.putInDownloadsStore) {
-                            getDownloadController().onDownloadComplete(messageObject);
-                        }
+                    if (document != null && (messageObject.putInDownloadsStore || messageObject.isVideo() || messageObject.isDocument())) {
+                        getDownloadController().onDownloadComplete(messageObject);
                         if (!messageObject.isRoundVideo() && !messageObject.isVoice() && !messageObject.isAnyKindOfSticker()) {
                             String fileNameToSave = getDocumentFileName(document);
                             int mediaType = messageObject.isVideo() ? 1 : (messageObject.isDocument() ? 2 : 0);
