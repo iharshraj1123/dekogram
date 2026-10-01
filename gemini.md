@@ -97,7 +97,12 @@ Dekogram is a private, clean fork of the official Telegram Android client (`DrKL
 ### 17. Persistent Background Downloads with Notification Service
 * **`DownloadForegroundService.java`**: Created dataSync foreground service with `PARTIAL_WAKE_LOCK` and high-perf Wi-Fi lock. Renders ongoing notification with filename and progress bar. Self-terminates when downloads finish.
 * **`ConnectionsManager.java`, `LaunchActivity.java`, `ScreenReceiver.java`**: Prevented native network pausing (`native_pauseNetwork`) when app is minimized or screen turns off while downloads are active.
-* **`DownloadController.java` & `FileLoader.java`**: Hooked document and video downloads to trigger the foreground service and monitor real-time progress.
+### 18. Package ID Migration (`org.dekogram.messenger`) & Play Protect Fix
+* **`gradle.properties`**: Set `APP_PACKAGE = org.dekogram.messenger`.
+* **`TMessagesProj_AppStandalone/build.gradle`**: Removed `applicationIdSuffix ".web"` in debug and standalone builds; switched `namespace` to `org.dekogram.messenger`.
+* **`TMessagesProj/config/release/AndroidManifest_standalone.xml`**: Stripped high-risk `SEND_SMS` and `READ_CALL_LOG` permissions that previously triggered Google Play Protect verification failure dialog (`INSTALL_FAILED_VERIFICATION_FAILURE`).
+* **`ContactsController.java`, `auth.xml`, `sync_contacts.xml`, `auth_menu.xml`**: Updated Android system account synchronization type to `org.dekogram.messenger`.
+* **`google-services.json`**: Updated package mappings across all flavor configs to `org.dekogram.messenger`.
 
 ---
 
@@ -109,7 +114,7 @@ Dekogram is a private, clean fork of the official Telegram Android client (`DrKL
 
 ### 2. Install on Device via ADB
 1. Connect device via USB with **USB Debugging** enabled.
-2. Push and install the APK (package runs side-by-side with official Telegram as `org.telegram.messenger.web`):
+2. Push and install the APK (package runs side-by-side with official Telegram as `org.dekogram.messenger`):
    ```bash
    adb push build_artifact/Dekogram.apk /data/local/tmp/app.apk
    adb shell pm install -r -t -d /data/local/tmp/app.apk
@@ -117,5 +122,5 @@ Dekogram is a private, clean fork of the official Telegram Android client (`DrKL
    ```
 3. Launch Dekogram from launcher or ADB:
    ```bash
-   adb shell am start -n org.telegram.messenger.web/org.telegram.ui.LaunchActivity
+   adb shell am start -n org.dekogram.messenger/org.telegram.ui.LaunchActivity
    ```
