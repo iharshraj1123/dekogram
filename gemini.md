@@ -83,3 +83,27 @@ Dekogram is a private, clean fork of the official Telegram Android client (`DrKL
 * **`build.gradle` (TMessagesProj & TMessagesProj_AppStandalone)**: Filtered ABIs strictly to `arm64-v8a`, reduced `ndk.debugSymbolLevel` to `'NONE'`, and configured `ccache` compiler launcher for CMake.
 * **`gradle.properties`**: Enabled `org.gradle.caching=true`.
 * **`.github/workflows/build-apk.yml`**: Installed `ccache`, configured 5GB GitHub Actions cache for compiled C++ objects, and enabled Gradle `--build-cache`.
+
+---
+
+## Installation & Deployment
+
+### 1. Download Built APK
+* **Via GitHub Web**: Go to [Actions](https://github.com/iharshraj1123/dekogram/actions) > select the latest workflow run > download `Dekogram-Debug-APK` from the Artifacts section.
+* **Via GitHub CLI**:
+  ```bash
+  gh run download <RUN_ID> --name Dekogram-Debug-APK --dir build_artifact
+  ```
+
+### 2. Install on Device via ADB
+1. Connect device via USB with **USB Debugging** enabled.
+2. Push and install the APK (package runs side-by-side with official Telegram as `org.telegram.messenger.web`):
+   ```bash
+   adb push build_artifact/afat/debug/app.apk /data/local/tmp/app.apk
+   adb shell pm install -r -t -d /data/local/tmp/app.apk
+   adb shell rm /data/local/tmp/app.apk
+   ```
+3. Launch Dekogram from launcher or ADB:
+   ```bash
+   adb shell am start -n org.telegram.messenger.web/org.telegram.ui.LaunchActivity
+   ```
