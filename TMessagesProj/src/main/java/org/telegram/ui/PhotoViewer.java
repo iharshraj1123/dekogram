@@ -4979,7 +4979,7 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
                                 showDownloadAlert();
                             }
                         } else if (f != null && f.exists()) {
-                            String originalDocName = currentDocument != null ? FileLoader.getDocumentFileName(currentDocument) : (currentMessageObject != null && currentMessageObject.getDocument() != null ? FileLoader.getDocumentFileName(currentMessageObject.getDocument()) : null);
+                            String originalDocName = currentMessageObject != null && currentMessageObject.getDocument() != null ? FileLoader.getDocumentFileName(currentMessageObject.getDocument()) : null;
                             MediaController.saveFile(f.toString(), parentActivity, isVideo ? 1 : 0, originalDocName, null, uri -> BulletinFactory.createSaveToGalleryBulletin(containerView, isVideo, 0xf9222222, 0xffffffff).show());
                         } else {
                             showDownloadAlert();

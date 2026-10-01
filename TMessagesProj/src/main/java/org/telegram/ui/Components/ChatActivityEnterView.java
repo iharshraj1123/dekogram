@@ -7458,8 +7458,8 @@ public class ChatActivityEnterView extends FrameLayout implements
     protected boolean showStickerConfirmAlert(Runnable onConfirmed) {
         if (getContext() != null) {
             org.telegram.ui.ActionBar.AlertDialog.Builder builder = new org.telegram.ui.ActionBar.AlertDialog.Builder(getContext());
-            builder.setTitle(LocaleController.getString(R.string.SendStickerShort));
-            builder.setMessage(LocaleController.getString(R.string.SendStickerShort) + "?");
+            builder.setTitle(LocaleController.getString(R.string.SendStickerPreview));
+            builder.setMessage(LocaleController.getString(R.string.SendStickerPreview) + "?");
             builder.setPositiveButton(LocaleController.getString(R.string.Send), (dialog, which) -> {
                 if (onConfirmed != null) {
                     onConfirmed.run();
