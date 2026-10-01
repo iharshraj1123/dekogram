@@ -31,6 +31,7 @@ import org.telegram.messenger.ApplicationLoader;
 import org.telegram.messenger.BaseController;
 import org.telegram.messenger.BuildVars;
 import org.telegram.messenger.CaptchaController;
+import org.telegram.messenger.DownloadForegroundService;
 import org.telegram.messenger.EmuDetector;
 import org.telegram.messenger.FileLoadOperation;
 import org.telegram.messenger.FileLoader;
