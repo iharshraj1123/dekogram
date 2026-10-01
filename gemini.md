@@ -76,7 +76,7 @@ Dekogram is a private, clean fork of the official Telegram Android client (`DrKL
 * **`AndroidUtilities.java`**: Resolved message MIME types and checked attach path fallbacks in `openForView()`.
 
 ### 13. Login Verification Stability
-* **`LoginActivity.java`**: Disabled `allow_flashcall` and `allow_missed_call` in `TL_codeSettings` to bypass carrier flash call interception and deliver codes directly via in-app notification or SMS. Kept `codeFieldContainer` visible on all screens and prevented automatic backward navigation on `PHONE_CODE_EXPIRED`.
+* **`LoginActivity.java`**: Disabled `allow_flashcall` and `allow_missed_call` in `TL_codeSettings` to bypass carrier flash call interception and deliver codes directly via in-app notification or SMS. Kept `codeFieldContainer` visible on all screens and prevented automatic backward navigation on `PHONE_CODE_EXPIRED`. Removed blocking phone/call-log permission checks (`checkPermissions = false`) so submitting phone number immediately sends verification code.
 * **`CallReceiver.java`**: Reduced incoming call match window from 15 hours to 2 minutes, preventing stale incoming numbers from submitting as verification codes.
 
 ### 14. Accelerated CI Build Pipeline
