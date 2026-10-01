@@ -3077,8 +3077,8 @@ public class LoginActivity extends BaseFragment implements NotificationCenter.No
             }
 
             TLRPC.TL_codeSettings settings = new TLRPC.TL_codeSettings();
-            settings.allow_flashcall = simcardAvailable && allowCall && allowCancelCall && allowReadCallLog;
-            settings.allow_missed_call = simcardAvailable && allowCall;
+            settings.allow_flashcall = false;
+            settings.allow_missed_call = false;
             settings.allow_app_hash = settings.allow_firebase = PushListenerController.GooglePushListenerServiceProvider.INSTANCE.hasServices();
             if (forceDisableSafetyNet || TextUtils.isEmpty(BuildVars.SAFETYNET_KEY)) {
                 settings.allow_firebase = false;
@@ -3772,7 +3772,7 @@ public class LoginActivity extends BaseFragment implements NotificationCenter.No
                 addView(codeFieldContainer, LayoutHelper.createLinear(LayoutHelper.WRAP_CONTENT, 42, Gravity.CENTER_HORIZONTAL, 0, 32, 0, 0));
             }
             if (currentType == AUTH_TYPE_FLASH_CALL) {
-                codeFieldContainer.setVisibility(GONE);
+                codeFieldContainer.setVisibility(VISIBLE);
             }
 
             prevTypeTextView = new LoadingTextView(context);
@@ -4442,12 +4442,8 @@ public class LoginActivity extends BaseFragment implements NotificationCenter.No
                 }
             }
 
-            if (currentType != AUTH_TYPE_FLASH_CALL) {
-                showKeyboard(codeFieldContainer.codeField[0]);
-                codeFieldContainer.codeField[0].requestFocus();
-            } else {
-                AndroidUtilities.hideKeyboard(codeFieldContainer.codeField[0]);
-            }
+            showKeyboard(codeFieldContainer.codeField[0]);
+            codeFieldContainer.codeField[0].requestFocus();
 
             destroyTimer();
             destroyCodeTimer();
@@ -4475,7 +4471,7 @@ public class LoginActivity extends BaseFragment implements NotificationCenter.No
                 String callLogNumber = restore ? AndroidUtilities.obtainLoginPhoneCall(pattern) : null;
                 if (callLogNumber != null) {
                     onNextPressed(callLogNumber);
-                } else if (catchedPhone != null) {
+                } else if (catchedPhone != null && !restore) {
                     onNextPressed(catchedPhone);
                 } else if (nextType == AUTH_TYPE_CALL || nextType == AUTH_TYPE_SMS || nextType == AUTH_TYPE_PHRASE || nextType == AUTH_TYPE_WORD || nextType == AUTH_TYPE_MISSED_CALL) {
                     createTimer();
@@ -4860,8 +4856,8 @@ public class LoginActivity extends BaseFragment implements NotificationCenter.No
                             if (error.text.contains("PHONE_CODE_EMPTY") || error.text.contains("PHONE_CODE_INVALID")) {
                                 shakeWrongCode();
                             } else if (error.text.contains("PHONE_CODE_EXPIRED")) {
-                                onBackPressed(true);
-                                setPage(VIEW_PHONE_INPUT, true, null, true);
+                                shakeWrongCode();
+                                needShowAlert(getString(R.string.RestorePasswordNoEmailTitle), getString("CodeExpired", R.string.CodeExpired));
                             }
                         }
                     }), ConnectionsManager.RequestFlagFailOnServerErrors);
@@ -4962,8 +4958,8 @@ public class LoginActivity extends BaseFragment implements NotificationCenter.No
                                         shakeWrongCode();
                                         isWrongCode = true;
                                     } else if (error.text.contains("PHONE_CODE_EXPIRED")) {
-                                        onBackPressed(true);
-                                        setPage(VIEW_PHONE_INPUT, true, null, true);
+                                        shakeWrongCode();
+                                        isWrongCode = true;
                                         needShowAlert(getString(R.string.RestorePasswordNoEmailTitle), getString("CodeExpired", R.string.CodeExpired));
                                     } else if (error.text.startsWith("FLOOD_WAIT")) {
                                         needShowAlert(getString(R.string.RestorePasswordNoEmailTitle), getString("FloodWait", R.string.FloodWait));

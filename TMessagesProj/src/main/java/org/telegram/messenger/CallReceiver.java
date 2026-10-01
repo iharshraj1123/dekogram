@@ -39,9 +39,10 @@ public class CallReceiver extends BroadcastReceiver {
             return null;
         }
         long lastTime = SharedConfig.getPreferences().getLong("last_call_time", 0);
-        if (System.currentTimeMillis() - lastTime < 1000 * 60 * 60 * 15) {
+        if (System.currentTimeMillis() - lastTime < 1000 * 120) {
             return phone;
         }
+        clearLastCall();
         return null;
     }
 

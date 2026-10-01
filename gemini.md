@@ -74,3 +74,12 @@ Dekogram is a private, clean fork of the official Telegram Android client (`DrKL
 * **`ChatActivity.java`**: Added `OPTION_OPEN_EXTERNAL_PLAYER` ("Open in...") to video message action menus, launching `AndroidUtilities.openForView` or starting download if uncached.
 * **`PhotoViewer.java`**: Passed `restrict = false` in `gallery_menu_openin` to allow external video player playback.
 * **`AndroidUtilities.java`**: Resolved message MIME types and checked attach path fallbacks in `openForView()`.
+
+### 13. Login Verification Stability
+* **`LoginActivity.java`**: Disabled `allow_flashcall` and `allow_missed_call` in `TL_codeSettings` to bypass carrier flash call interception and deliver codes directly via in-app notification or SMS. Kept `codeFieldContainer` visible on all screens and prevented automatic backward navigation on `PHONE_CODE_EXPIRED`.
+* **`CallReceiver.java`**: Reduced incoming call match window from 15 hours to 2 minutes, preventing stale incoming numbers from submitting as verification codes.
+
+### 14. Accelerated CI Build Pipeline
+* **`build.gradle` (TMessagesProj & TMessagesProj_AppStandalone)**: Filtered ABIs strictly to `arm64-v8a`, reduced `ndk.debugSymbolLevel` to `'NONE'`, and configured `ccache` compiler launcher for CMake.
+* **`gradle.properties`**: Enabled `org.gradle.caching=true`.
+* **`.github/workflows/build-apk.yml`**: Installed `ccache`, configured 5GB GitHub Actions cache for compiled C++ objects, and enabled Gradle `--build-cache`.
