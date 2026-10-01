@@ -14,8 +14,8 @@ import android.view.ViewGroup;
 import androidx.core.content.FileProvider;
 
 import org.json.JSONObject;
-import org.dekogram.messenger.BuildConfig;
-import org.dekogram.messenger.R;
+import org.telegram.messenger.web.BuildConfig;
+import org.telegram.messenger.web.R;
 import org.telegram.tgnet.ConnectionsManager;
 import org.telegram.tgnet.TL_smsjobs;
 import org.telegram.tgnet.TLRPC;
