@@ -4980,7 +4980,8 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
                             }
                         } else if (f != null && f.exists()) {
                             String originalDocName = currentMessageObject != null && currentMessageObject.getDocument() != null ? FileLoader.getDocumentFileName(currentMessageObject.getDocument()) : null;
-                            MediaController.saveFile(f.toString(), parentActivity, isVideo ? 1 : 0, originalDocName, null, uri -> BulletinFactory.createSaveToGalleryBulletin(containerView, isVideo, 0xf9222222, 0xffffffff).show());
+                            long postDate = currentMessageObject != null && currentMessageObject.messageOwner != null ? currentMessageObject.messageOwner.date : 0;
+                            MediaController.saveFile(f.toString(), parentActivity, isVideo ? 1 : 0, originalDocName, null, uri -> BulletinFactory.createSaveToGalleryBulletin(containerView, isVideo, 0xf9222222, 0xffffffff).show(), true, postDate);
                         } else {
                             showDownloadAlert();
                         }
@@ -5869,7 +5870,8 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
                 f = FileLoader.getInstance(currentAccount).getPathToAttach(document, null, true, true);
             }
             if (f != null && f.exists()) {
-                MediaController.saveFile(f.toString(), parentActivity, 1, FileLoader.getDocumentFileName(document), null, uri -> BulletinFactory.createSaveToGalleryBulletin(containerView, true, 0xf9222222, 0xffffffff).show());
+                long postDate = messageObject != null && messageObject.messageOwner != null ? messageObject.messageOwner.date : 0;
+                MediaController.saveFile(f.toString(), parentActivity, 1, FileLoader.getDocumentFileName(document), null, uri -> BulletinFactory.createSaveToGalleryBulletin(containerView, true, 0xf9222222, 0xffffffff).show(), true, postDate);
             } else {
                 ArrayList<MessageObject> messageObjects = new ArrayList<>();
                 messageObject.qualityToSave = document;

@@ -33293,7 +33293,8 @@ public class ChatActivity extends BaseFragment implements
             }
         }
         String originalDocName = messageObject.getDocument() != null ? FileLoader.getDocumentFileName(messageObject.getDocument()) : null;
-        MediaController.saveFile(path, getParentActivity(), messageObject.isVideo() ? 1 : 0, originalDocName, null);
+        long postDate = messageObject.messageOwner != null ? messageObject.messageOwner.date : 0;
+        MediaController.saveFile(path, getParentActivity(), messageObject.isVideo() ? 1 : 0, originalDocName, null, null, true, postDate);
     }
 
     private void processSelectedOption(int option) {

@@ -104,6 +104,11 @@ Dekogram is a private, clean fork of the official Telegram Android client (`DrKL
 * **API Credentials**: Configured third-party Telegram client API credentials in `BuildVars.java` (`APP_ID = 442495`, `APP_HASH = "873ffaceba76e791ff2491224a3cdb49"`, `SUPPORTS_PASSKEYS = false`). Telegram MTProto servers validate third-party package names, enabling verification codes and account login without official package restrictions.
 * **`LoginActivity.java`**: Bypassed telephony and call-log permission trap via Nekogram guard (`false && ...`) in `onConfirm` and `onNextPressed`, directly advancing to phone confirmation and verification code dispatch.
 
+### 19. Single-File Storage, Post Timestamp Sync & Clean Naming
+* **`FileLoader.java`**: On download completion, passed `messageOwner.date` to `MediaController.saveFile()`. Relinked `FilePathDatabase` and `document.localPath` to the exported public file in `Download/Dekogram/Videos/`, then deleted the duplicate internal cache copy from `Android/data/org.dekogram.messenger/` to eliminate double storage consumption.
+* **`MediaController.java`**: Added `resolveSaveFileName()` preserving clean original filenames without `VID_` boilerplate prefix, appending a compact 5-digit suffix (`_XXXXX`) only on destination conflict, and falling back to `yyyyMMdd_XXXXX.mp4` for unnamed clips. Synchronized filesystem `lastModified` and MediaStore metadata (`DATE_TAKEN`, `DATE_MODIFIED`, `DATE_ADDED`) with `messageOwner.date` for accurate chronological ordering in Gallery, VLC, and MX Player.
+* **`ChatActivity.java`, `PhotoViewer.java`**: Forwarded `messageOwner.date` to `MediaController.saveFile()` for manual gallery saves.
+
 ---
 
 ## Installation & Deployment

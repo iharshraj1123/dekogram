@@ -5444,14 +5444,18 @@ public class MediaController implements AudioManager.OnAudioFocusChangeListener,
     }
 
     public static void saveFile(String fullPath, Context context, final int type, final String name, final String mime) {
-        saveFile(fullPath, context, type, name, mime, null);
+        saveFile(fullPath, context, type, name, mime, null, true, 0);
     }
 
     public static void saveFile(String fullPath, Context context, final int type, final String name, final String mime, final Utilities.Callback<Uri> onSaved) {
-        saveFile(fullPath, context, type, name, mime, onSaved, true);
+        saveFile(fullPath, context, type, name, mime, onSaved, true, 0);
     }
 
     public static void saveFile(String fullPath, Context context, final int type, final String name, final String mime, final Utilities.Callback<Uri> onSaved, boolean showProgress) {
+        saveFile(fullPath, context, type, name, mime, onSaved, showProgress, 0);
+    }
+
+    public static void saveFile(String fullPath, Context context, final int type, final String name, final String mime, final Utilities.Callback<Uri> onSaved, boolean showProgress, final long postDateSeconds) {
         if (fullPath == null || context == null) {
             return;
         }
@@ -5499,18 +5503,19 @@ public class MediaController implements AudioManager.OnAudioFocusChangeListener,
                     Uri uri;
                     boolean result = true;
                     if (Build.VERSION.SDK_INT >= 29) {
-                        uri = saveFileInternal(type, sourceFile, name);
+                        uri = saveFileInternal(type, sourceFile, name, postDateSeconds);
                         result = uri != null;
                     } else {
                         File destFile;
+                        String ext = FileLoader.getFileExtension(sourceFile);
                         if (type == 0) {
-                            destFile = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), "Dekogram");
-                            destFile.mkdirs();
-                            destFile = new File(destFile, !TextUtils.isEmpty(name) ? name : AndroidUtilities.generateFileName(0, FileLoader.getFileExtension(sourceFile)));
+                            File dir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), "Dekogram");
+                            dir.mkdirs();
+                            destFile = new File(dir, resolveSaveFileName(dir, name, ext, 0, postDateSeconds));
                         } else if (type == 1) {
                             File vDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "Dekogram" + File.separator + "Videos");
                             vDir.mkdirs();
-                            destFile = new File(vDir, !TextUtils.isEmpty(name) ? name : AndroidUtilities.generateFileName(1, FileLoader.getFileExtension(sourceFile)));
+                            destFile = new File(vDir, resolveSaveFileName(vDir, name, ext, 1, postDateSeconds));
                         } else {
                             File dir;
                             if (type == 2) {
@@ -5520,22 +5525,7 @@ public class MediaController implements AudioManager.OnAudioFocusChangeListener,
                             }
                             dir = new File(dir, "Dekogram");
                             dir.mkdirs();
-                            destFile = new File(dir, name);
-                            if (destFile.exists()) {
-                                int idx = name.lastIndexOf('.');
-                                for (int a = 0; a < 10; a++) {
-                                    String newName;
-                                    if (idx != -1) {
-                                        newName = name.substring(0, idx) + "(" + (a + 1) + ")" + name.substring(idx);
-                                    } else {
-                                        newName = name + "(" + (a + 1) + ")";
-                                    }
-                                    destFile = new File(dir, newName);
-                                    if (!destFile.exists()) {
-                                        break;
-                                    }
-                                }
-                            }
+                            destFile = new File(dir, resolveSaveFileName(dir, name, ext, type, postDateSeconds));
                         }
                         if (!destFile.exists()) {
                             destFile.createNewFile();
@@ -5589,6 +5579,12 @@ public class MediaController implements AudioManager.OnAudioFocusChangeListener,
                             result = false;
                         }
                         if (result) {
+                            if (destFile != null && destFile.exists() && postDateSeconds > 0) {
+                                try {
+                                    destFile.setLastModified(postDateSeconds * 1000L);
+                                } catch (Throwable ignore) {
+                                }
+                            }
                             if (type == 2) {
                                 DownloadManager downloadManager = (DownloadManager) ApplicationLoader.applicationContext.getSystemService(Context.DOWNLOAD_SERVICE);
                                 downloadManager.addCompletedDownload(destFile.getName(), destFile.getName(), false, mime, destFile.getAbsolutePath(), destFile.length(), true);
@@ -5793,7 +5789,43 @@ public class MediaController implements AudioManager.OnAudioFocusChangeListener,
                 "<?xpacket end=\"w\"?>";
     }
 
+    public static String resolveSaveFileName(File targetDir, String name, String extension, int type, long postDateSeconds) {
+        if (TextUtils.isEmpty(name) || name.trim().isEmpty()) {
+            java.util.Date date = postDateSeconds > 0 ? new java.util.Date(postDateSeconds * 1000L) : new java.util.Date();
+            String dateStr = new java.text.SimpleDateFormat("yyyyMMdd", Locale.US).format(date);
+            int random5 = 10000 + Utilities.random.nextInt(90000);
+            String cleanExt = !TextUtils.isEmpty(extension) ? extension : (type == 1 ? "mp4" : (type == 0 ? "jpg" : "bin"));
+            return dateStr + "_" + random5 + "." + cleanExt;
+        }
+
+        String finalName = name.trim();
+        if (!TextUtils.isEmpty(extension) && !finalName.toLowerCase().endsWith("." + extension.toLowerCase())) {
+            finalName = finalName + "." + extension;
+        }
+
+        if (targetDir != null && targetDir.exists()) {
+            File testFile = new File(targetDir, finalName);
+            if (testFile.exists()) {
+                int dot = finalName.lastIndexOf('.');
+                String base = dot > 0 ? finalName.substring(0, dot) : finalName;
+                String ext = dot > 0 ? finalName.substring(dot) : "";
+                for (int i = 0; i < 10; i++) {
+                    int random5 = 10000 + Utilities.random.nextInt(90000);
+                    String candidateName = base + "_" + random5 + ext;
+                    if (!new File(targetDir, candidateName).exists()) {
+                        return candidateName;
+                    }
+                }
+            }
+        }
+        return finalName;
+    }
+
     private static Uri saveFileInternal(int type, File sourceFile, String filename) {
+        return saveFileInternal(type, sourceFile, filename, 0);
+    }
+
+    private static Uri saveFileInternal(int type, File sourceFile, String filename, long postDateSeconds) {
         try {
             int selectedType = type;
             ContentValues contentValues = new ContentValues();
@@ -5811,46 +5843,49 @@ public class MediaController implements AudioManager.OnAudioFocusChangeListener,
                     selectedType = 1;
                 }
             }
+            File dirDest;
             if (selectedType == 0) {
-                if (filename == null) {
-                    filename = AndroidUtilities.generateFileName(0, extension);
-                } else if (extension != null && !filename.toLowerCase().endsWith("." + extension.toLowerCase())) {
-                    filename = filename + "." + extension;
-                }
+                dirDest = new File(Environment.DIRECTORY_PICTURES, "Dekogram");
+                File publicDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), "Dekogram");
+                filename = resolveSaveFileName(publicDir, filename, extension, 0, postDateSeconds);
                 uriToInsert = MediaStore.Images.Media.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY);
-                File dirDest = new File(Environment.DIRECTORY_PICTURES, "Dekogram");
                 contentValues.put(MediaStore.MediaColumns.RELATIVE_PATH, dirDest + File.separator);
                 contentValues.put(MediaStore.Images.Media.DISPLAY_NAME, filename);
                 contentValues.put(MediaStore.Images.Media.MIME_TYPE, mimeType);
+                if (postDateSeconds > 0) {
+                    contentValues.put(MediaStore.Images.Media.DATE_TAKEN, postDateSeconds * 1000L);
+                }
             } else if (selectedType == 1) {
-                if (filename == null) {
-                    filename = AndroidUtilities.generateFileName(1, extension);
-                } else if (extension != null && !filename.toLowerCase().endsWith("." + extension.toLowerCase())) {
-                    filename = filename + "." + extension;
-                }
-                File dirDest = new File(Environment.DIRECTORY_DOWNLOADS, "Dekogram" + File.separator + "Videos");
-                contentValues.put(MediaStore.MediaColumns.RELATIVE_PATH, dirDest + File.separator);
+                dirDest = new File(Environment.DIRECTORY_DOWNLOADS, "Dekogram" + File.separator + "Videos");
+                File publicDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "Dekogram" + File.separator + "Videos");
+                filename = resolveSaveFileName(publicDir, filename, extension, 1, postDateSeconds);
                 uriToInsert = MediaStore.Downloads.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY);
+                contentValues.put(MediaStore.MediaColumns.RELATIVE_PATH, dirDest + File.separator);
                 contentValues.put(MediaStore.Downloads.DISPLAY_NAME, filename);
-            } else if (selectedType == 2) {
-                if (filename == null) {
-                    filename = sourceFile.getName();
+                if (postDateSeconds > 0) {
+                    contentValues.put(MediaStore.Video.Media.DATE_TAKEN, postDateSeconds * 1000L);
                 }
-                File dirDest = new File(Environment.DIRECTORY_DOWNLOADS, "Dekogram");
-                contentValues.put(MediaStore.MediaColumns.RELATIVE_PATH, dirDest + File.separator);
+            } else if (selectedType == 2) {
+                dirDest = new File(Environment.DIRECTORY_DOWNLOADS, "Dekogram");
+                File publicDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "Dekogram");
+                filename = resolveSaveFileName(publicDir, filename, extension, 2, postDateSeconds);
                 uriToInsert = MediaStore.Downloads.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY);
+                contentValues.put(MediaStore.MediaColumns.RELATIVE_PATH, dirDest + File.separator);
                 contentValues.put(MediaStore.Downloads.DISPLAY_NAME, filename);
             } else {
-                if (filename == null) {
-                    filename = sourceFile.getName();
-                }
-                File dirDest = new File(Environment.DIRECTORY_MUSIC, "Dekogram");
-                contentValues.put(MediaStore.MediaColumns.RELATIVE_PATH, dirDest + File.separator);
+                dirDest = new File(Environment.DIRECTORY_MUSIC, "Dekogram");
+                File publicDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC), "Dekogram");
+                filename = resolveSaveFileName(publicDir, filename, extension, 3, postDateSeconds);
                 uriToInsert = MediaStore.Audio.Media.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY);
+                contentValues.put(MediaStore.MediaColumns.RELATIVE_PATH, dirDest + File.separator);
                 contentValues.put(MediaStore.Audio.Media.DISPLAY_NAME, filename);
             }
 
             contentValues.put(MediaStore.MediaColumns.MIME_TYPE, mimeType);
+            if (postDateSeconds > 0) {
+                contentValues.put(MediaStore.MediaColumns.DATE_ADDED, postDateSeconds);
+                contentValues.put(MediaStore.MediaColumns.DATE_MODIFIED, postDateSeconds);
+            }
 
             Uri dstUri = ApplicationLoader.applicationContext.getContentResolver().insert(uriToInsert, contentValues);
             if (dstUri != null) {
@@ -5858,6 +5893,18 @@ public class MediaController implements AudioManager.OnAudioFocusChangeListener,
                 OutputStream outputStream = ApplicationLoader.applicationContext.getContentResolver().openOutputStream(dstUri);
                 AndroidUtilities.copyFile(fileInputStream, outputStream);
                 fileInputStream.close();
+                if (outputStream != null) {
+                    outputStream.close();
+                }
+                if (postDateSeconds > 0) {
+                    try {
+                        String realPath = AndroidUtilities.getPath(dstUri);
+                        if (realPath != null) {
+                            new File(realPath).setLastModified(postDateSeconds * 1000L);
+                        }
+                    } catch (Throwable ignore) {
+                    }
+                }
             }
             return dstUri;
         } catch (Exception e) {
