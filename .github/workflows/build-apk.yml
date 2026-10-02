@@ -1,9 +1,17 @@
-name: Build Dekogram APK
+name: Build & Auto-Sync Dekogram APK
 
 on:
+  schedule:
+    - cron: '0 */6 * * *'
   push:
     branches: [ master, main ]
   workflow_dispatch:
+    inputs:
+      force_sync:
+        description: 'Force sync with upstream Telegram tag'
+        required: false
+        type: boolean
+        default: false
 
 jobs:
   build:
@@ -12,6 +20,7 @@ jobs:
     timeout-minutes: 90
     permissions:
       contents: write
+      issues: write
 
     steps:
       - name: Free disk space
@@ -35,9 +44,78 @@ jobs:
         uses: actions/checkout@v4
         with:
           submodules: 'recursive'
-          fetch-depth: 1
+          fetch-depth: 0
+
+      - name: Check and auto-merge upstream Telegram
+        id: sync_check
+        run: |
+          if [ "${{ github.event_name }}" != "schedule" ] && [ "${{ github.event.inputs.force_sync }}" != "true" ]; then
+            echo "Direct push or manual build. Proceeding with compilation."
+            echo "should_build=true" >> $GITHUB_OUTPUT
+            echo "has_merged=false" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          echo "Checking upstream DrKLO/Telegram releases..."
+          LATEST_TAG=$(curl -s "https://api.github.com/repos/DrKLO/Telegram/tags?per_page=1" | jq -r '.[0].name // empty')
+          echo "Latest upstream tag: $LATEST_TAG"
+
+          if [ -z "$LATEST_TAG" ]; then
+            echo "Could not fetch upstream tag. Skipping."
+            echo "should_build=false" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          git remote add upstream https://github.com/DrKLO/Telegram.git || true
+          git fetch upstream --tags --quiet
+
+          if git merge-base --is-ancestor "$LATEST_TAG" HEAD; then
+            echo "Tag $LATEST_TAG is already merged into HEAD. Everything up to date!"
+            echo "should_build=false" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          echo "New upstream release detected: $LATEST_TAG. Attempting auto-merge..."
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          if git merge --no-edit "$LATEST_TAG" -m "chore(upstream): auto-merge $LATEST_TAG"; then
+            echo "Auto-merge succeeded cleanly!"
+            echo "should_build=true" >> $GITHUB_OUTPUT
+            echo "has_merged=true" >> $GITHUB_OUTPUT
+            echo "tag_name=$LATEST_TAG" >> $GITHUB_OUTPUT
+          else
+            echo "Merge conflict encountered. Aborting merge safely."
+            git merge --abort
+            echo "should_build=false" >> $GITHUB_OUTPUT
+            echo "has_conflict=true" >> $GITHUB_OUTPUT
+            echo "tag_name=$LATEST_TAG" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Report merge conflict issue
+        if: steps.sync_check.outputs.has_conflict == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const tag = '${{ steps.sync_check.outputs.tag_name }}';
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `⚠️ Upstream merge conflict on ${tag}`,
+              body: `The autonomous sync workflow detected a new release \`${tag}\` from [DrKLO/Telegram](https://github.com/DrKLO/Telegram/releases/tag/${tag}) but encountered a merge conflict.\n\n` +
+                    `The \`main\` branch was left untouched to prevent broken builds.\n\n` +
+                    `To resolve manually:\n` +
+                    `\`\`\`bash\n` +
+                    `git fetch upstream --tags\n` +
+                    `git checkout -b sync-${tag}\n` +
+                    `git merge ${tag}\n` +
+                    `# resolve conflict, test, and push\n` +
+                    `\`\`\``,
+              labels: ['upstream-conflict']
+            });
 
       - name: Set up JDK 17
+        if: steps.sync_check.outputs.should_build == 'true'
         uses: actions/setup-java@v5
         with:
           distribution: 'temurin'
@@ -45,12 +123,14 @@ jobs:
           cache: 'gradle'
 
       - name: Install and configure ccache
+        if: steps.sync_check.outputs.should_build == 'true'
         run: |
           sudo apt-get update
           sudo apt-get install -y ccache
           ccache -M 5G
 
       - name: Cache ccache
+        if: steps.sync_check.outputs.should_build == 'true'
         uses: actions/cache@v4
         with:
           path: ~/.cache/ccache
@@ -59,6 +139,7 @@ jobs:
             ${{ runner.os }}-ccache-
 
       - name: Set up Android NDK & SDK licenses
+        if: steps.sync_check.outputs.should_build == 'true'
         run: |
           export PATH="$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$PATH"
           echo "$ANDROID_HOME/cmdline-tools/latest/bin" >> $GITHUB_PATH
@@ -67,20 +148,25 @@ jobs:
           sdkmanager --install "ndk;27.2.12479018" "cmake;3.22.1"
 
       - name: Make gradlew executable
+        if: steps.sync_check.outputs.should_build == 'true'
         run: chmod +x ./gradlew
 
       - name: Build APK (TMessagesProj_AppStandalone)
+        if: steps.sync_check.outputs.should_build == 'true'
         run: ./gradlew :TMessagesProj_AppStandalone:assembleAfatDebug --no-daemon --build-cache --stacktrace
 
       - name: Show ccache stats
+        if: steps.sync_check.outputs.should_build == 'true'
         run: ccache -s
 
       - name: Prepare APK for distribution
+        if: steps.sync_check.outputs.should_build == 'true'
         run: |
           mkdir -p build_output
           cp TMessagesProj_AppStandalone/build/outputs/apk/afat/debug/app.apk build_output/Dekogram.apk
 
       - name: Locate and upload APK
+        if: steps.sync_check.outputs.should_build == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: Dekogram-Debug-APK
@@ -88,7 +174,7 @@ jobs:
           if-no-files-found: error
 
       - name: Publish to GitHub Releases
-        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+        if: steps.sync_check.outputs.should_build == 'true' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
         uses: softprops/action-gh-release@v2
         with:
           tag_name: latest
@@ -99,3 +185,8 @@ jobs:
           make_latest: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Push merged upstream changes to main
+        if: steps.sync_check.outputs.has_merged == 'true'
+        run: |
+          git push origin HEAD:${{ github.ref_name }}

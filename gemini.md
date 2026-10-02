@@ -114,12 +114,12 @@ Dekogram is a private, clean fork of the official Telegram Android client (`DrKL
 * **`DekogramUI.java`**: Centralized UI confirmations (`shouldHideStories`, `showStickerConfirmAlert`).
 * **`MessagesController.java`, `PhotoViewer.java`, `FlagSecureReason.java`, `UserConfig.java`, `ChatActivity.java`, `DialogsActivity.java`, `ChatActivityEnterView.java`**: Converted inline patches into 1-line hook calls, reducing upstream git merge conflict risk by >90%.
 
-### 21. Native In-App GitHub Releases Updater & Upstream Monitor
+### 21. Native In-App GitHub Releases Updater & Zero-Touch Autonomous Sync
 * **`DekogramUpdater.java`**: Asynchronously queries `https://api.github.com/repos/iharshraj1123/dekogram/releases/latest`, parses release metadata, streams `Dekogram.apk` with dialog download progress, and launches package installation via `FileProvider` (`org.dekogram.messenger.provider`).
 * **`ApplicationLoaderImpl.java`**: Overrode `isCustomUpdate() = true`, delegating `checkUpdate`, `getUpdate`, `downloadUpdate`, and `showCustomUpdateAppPopup` to `DekogramUpdater`.
 * **`LaunchActivity.java`**: Enabled custom update checks on startup while keeping official Telegram update pings blocked; added instant feedback bulletin for manual checks when up to date.
 * **`SettingsActivity.java`**: Configured single tap on Settings version text to instantly trigger `checkAppUpdate(true, null)` with UI bulletin feedback; long press preserved for Debug Menu.
-* **`.github/workflows/upstream-monitor.yml`**: Added automated daily workflow monitoring `DrKLO/Telegram` tags and creating tracking issues for upstream updates.
+* **`.github/workflows/build-apk.yml`**: Configured 100% zero-touch autonomous pipeline running every 6 hours in GitHub cloud. Queries official `DrKLO/Telegram` tags, verifies ancestry, safely auto-merges new tags, builds the APK, publishes the release asset, and commits upstream changes to `main` without human intervention. In case of merge conflict, aborts safely (`git merge --abort`) and files an alert issue.
 * **Git Remotes**: Configured `upstream` remote pointing to `https://github.com/DrKLO/Telegram.git` for tag synchronization.
 
 ---
