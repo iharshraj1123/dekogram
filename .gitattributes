@@ -1,0 +1,5 @@
+# Dekogram Custom Configuration
+# Protect custom documentation files from being overwritten or conflicting during upstream merges
+README.md merge=ours
+GEMINI.md merge=ours
+gemini.md merge=ours

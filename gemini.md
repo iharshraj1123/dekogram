@@ -146,6 +146,8 @@ Dekogram is a private, clean fork of the official Telegram Android client (`DrKL
   * Prefer returning safe defaults (`false`) or isolating TLRPC checks inside `Dekogram*` helpers so upstream schema renames never break compilation.
 * **Autonomous Conflict Safety & Issue Alerts**:
   * The 6-hour cron sync workflow (`build-apk.yml`) automatically aborts (`git merge --abort`) if upstream Telegram changes cannot be cleanly merged, and opens a GitHub issue alerting maintainers. No broken APK is ever built or released on merge conflicts.
+* **Documentation Preservation (`.gitattributes` & `merge=ours`)**:
+  * `README.md` and `GEMINI.md` are protected with `merge=ours` in `.gitattributes`. Upstream Telegram README modifications will never overwrite Dekogram documentation or trigger merge conflicts during autonomous sync.
 * **Section Maintenance Requirement**:
   * Whenever any CI build failure occurs, diagnose the root cause, fix it, and immediately record the concise preventive rule in this section for future assistants.
 
@@ -155,6 +157,7 @@ Dekogram is a private, clean fork of the official Telegram Android client (`DrKL
 
 > **Build Policy**: Always build the app using GitHub Actions (never build locally, avoiding heavy C++/CMake resource load and local toolchain divergence).
 > **Push Policy (Do NOT Push on Every Commit)**: Pushing commits to `origin main` immediately triggers the heavy GitHub Actions build pipeline. Keep changes and commits local during development and debugging. Do NOT push to `origin` after every single minor edit.
+> **Documentation Edits Skip Build (`paths-ignore`)**: Pushes containing only documentation or non-code files (`**.md`, `.gitignore`, `.gitattributes`, `docs/**`, `LICENSE*`) are automatically ignored by `paths-ignore` in `build-apk.yml` and will **not** trigger a workflow run.
 > **Cancel Stale Builds Before / On Push**: Whenever pushing to `origin` with the intent to trigger a build, cancel any existing or in-progress workflow runs first. `.github/workflows/build-apk.yml` configures `concurrency: { group: ..., cancel-in-progress: true }` to automatically terminate superseded runs, but verify and abort via CLI if necessary (`gh run cancel <id>`).
 > **Trigger Conditions**: Only push to `origin main` to trigger a build when:
 > 1. The user explicitly requests a new build or APK release.
