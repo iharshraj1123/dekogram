@@ -179,4 +179,26 @@ public class DekogramMedia {
             org.telegram.messenger.MediaController.saveFile(finalFile.getAbsolutePath(), org.telegram.messenger.ApplicationLoader.applicationContext, 0, null, "image/jpeg", null, false, postDate);
         }
     }
+
+    public static void applyDownloadBoost(org.telegram.messenger.FileLoadOperation op, boolean forceSmallChunk) {
+        if (op == null || forceSmallChunk) {
+            return;
+        }
+        int mode = DekogramConfig.getDownloadBoostMode();
+        if (mode == DekogramConfig.DOWNLOAD_BOOST_OFF) {
+            return;
+        }
+        op.downloadChunkSizeBig = 1024 * 512;
+        op.downloadChunkSize = 1024 * 128;
+        op.bigFileSizeFrom = 1024 * 1024;
+        op.downloadChunkSizeAnimation = 1024 * 256;
+        op.maxDownloadRequestsAnimation = 8;
+        if (mode == DekogramConfig.DOWNLOAD_BOOST_FAST) {
+            op.maxDownloadRequests = 8;
+            op.maxDownloadRequestsBig = 8;
+        } else {
+            op.maxDownloadRequests = 12;
+            op.maxDownloadRequestsBig = 12;
+        }
+    }
 }

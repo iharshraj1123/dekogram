@@ -131,6 +131,12 @@ Dekogram is a private, clean fork of the official Telegram Android client (`DrKL
 * **`DekogramUI.java`**: Added `formatSessionAppName()` mapping server-returned API client names (`Nekogram` associated with `APP_ID = 442495`) to `Dekogram`.
 * **`SessionCell.java`, `SessionBottomSheet.java`**: Formatted `session.app_name` with `DekogramUI.formatSessionAppName()`, ensuring "This Device" and active sessions list consistently display "Dekogram".
 
+### 24. High-Speed Download Boost (Parallel Streams & 512KB Chunks)
+* **`DekogramConfig.java`**: Added download boost modes (`DOWNLOAD_BOOST_OFF = 0`, `DOWNLOAD_BOOST_FAST = 1` [8 streams], `DOWNLOAD_BOOST_MAXIMUM = 2` [12 streams, default]) and preference helpers (`getDownloadBoostMode()`, `setDownloadBoostMode()`).
+* **`DekogramMedia.java`**: Added `applyDownloadBoost(FileLoadOperation op, boolean forceSmallChunk)` dynamically boosting large chunk size to 512 KB, small chunk size to 128 KB, stream chunk size to 256 KB, and parallel connection requests to 8 or 12 streams across dual MTProto download sockets.
+* **`FileLoadOperation.java`**: Delegated chunk and parallelism calculation in `updateParams()` to `DekogramMedia.applyDownloadBoost()` via 1-line hook while safely maintaining fallback on `forceSmallChunk`.
+* **`DataSettingsActivity.java`**: Added "Download Speed Boost" preference row with single-choice selection dialog under Automatic Media Download settings.
+
 ---
 
 ## Build Error Prevention & Maintenance Standards

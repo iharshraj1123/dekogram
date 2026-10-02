@@ -150,17 +150,17 @@ public class FileLoadOperation {
     private final static int stateCanceled = 4;
     private final static int stateCancelling = 5;
 
-    private int downloadChunkSize = 1024 * 32;
-    private int downloadChunkSizeBig = 1024 * 128;
+    public int downloadChunkSize = 1024 * 32;
+    public int downloadChunkSizeBig = 1024 * 128;
     private int cdnChunkCheckSize = 1024 * 128;
-    private int maxDownloadRequests = 4;
-    private int maxDownloadRequestsBig = 4;
-    private int bigFileSizeFrom = 10 * 1024 * 1024;
+    public int maxDownloadRequests = 4;
+    public int maxDownloadRequestsBig = 4;
+    public int bigFileSizeFrom = 10 * 1024 * 1024;
     private int maxCdnParts = (int) (FileLoader.DEFAULT_MAX_FILE_SIZE / downloadChunkSizeBig);
 
     //load small parts for stream
-    private int downloadChunkSizeAnimation = 1024 * 128;
-    private int maxDownloadRequestsAnimation = 4;
+    public int downloadChunkSizeAnimation = 1024 * 128;
+    public int maxDownloadRequestsAnimation = 4;
 
     private final static int preloadMaxBytes = 2 * 1024 * 1024;
 
@@ -295,6 +295,7 @@ public class FileLoadOperation {
             maxDownloadRequests = 4;
             maxDownloadRequestsBig = 4;
         }
+        org.telegram.messenger.dekogram.DekogramMedia.applyDownloadBoost(this, forceSmallChunk);
         maxCdnParts = (int) (FileLoader.DEFAULT_MAX_FILE_SIZE / downloadChunkSizeBig);
     }
 

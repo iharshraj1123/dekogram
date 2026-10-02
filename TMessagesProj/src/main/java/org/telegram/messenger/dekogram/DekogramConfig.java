@@ -42,4 +42,17 @@ public class DekogramConfig {
     public static void setVideoNamingMode(int mode) {
         org.telegram.messenger.MessagesController.getGlobalMainSettings().edit().putInt("dekogram_video_naming", mode).apply();
     }
+
+    // Download Speed Boost
+    public static final int DOWNLOAD_BOOST_OFF = 0;      // Disabled (4 streams, 128KB chunks)
+    public static final int DOWNLOAD_BOOST_FAST = 1;     // Fast (8 parallel streams, 512KB chunks)
+    public static final int DOWNLOAD_BOOST_MAXIMUM = 2;  // Maximum (12 parallel streams, 512KB chunks) [Default]
+
+    public static int getDownloadBoostMode() {
+        return org.telegram.messenger.MessagesController.getGlobalMainSettings().getInt("dekogram_download_boost", DOWNLOAD_BOOST_MAXIMUM);
+    }
+
+    public static void setDownloadBoostMode(int mode) {
+        org.telegram.messenger.MessagesController.getGlobalMainSettings().edit().putInt("dekogram_download_boost", mode).apply();
+    }
 }

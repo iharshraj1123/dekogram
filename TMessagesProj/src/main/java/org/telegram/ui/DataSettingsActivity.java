@@ -75,6 +75,7 @@ public class DataSettingsActivity extends BaseFragment {
     private int roamingRow;
     private int wifiRow;
     private int videoDownloadNamingRow;
+    private int downloadSpeedBoostRow;
     private int storageNumRow;
     @Keep
     private int resetDownloadRow = -1;
@@ -149,6 +150,7 @@ public class DataSettingsActivity extends BaseFragment {
         wifiRow = rowCount++;
         roamingRow = rowCount++;
         videoDownloadNamingRow = rowCount++;
+        downloadSpeedBoostRow = rowCount++;
         DownloadController dc = getDownloadController();
         boolean isDefault = !(
             !dc.lowPreset.equals(dc.getCurrentRoamingPreset()) || dc.lowPreset.isEnabled() != dc.roamingPreset.enabled ||
@@ -159,10 +161,10 @@ public class DataSettingsActivity extends BaseFragment {
         resetDownloadRow = isDefault ? -1 : rowCount++;
         if (listAdapter != null && !fullNotify) {
             if (wasResetDownloadRow < 0 && resetDownloadRow >= 0) {
-                listAdapter.notifyItemChanged(videoDownloadNamingRow);
+                listAdapter.notifyItemChanged(downloadSpeedBoostRow);
                 listAdapter.notifyItemInserted(resetDownloadRow);
             } else if (wasResetDownloadRow >= 0 && resetDownloadRow < 0) {
-                listAdapter.notifyItemChanged(videoDownloadNamingRow);
+                listAdapter.notifyItemChanged(downloadSpeedBoostRow);
                 listAdapter.notifyItemRemoved(wasResetDownloadRow);
             } else {
                 fullNotify = true;
@@ -492,6 +494,20 @@ public class DataSettingsActivity extends BaseFragment {
                         });
                 setVisibleDialog(dlg);
                 dlg.show();
+            } else if (position == downloadSpeedBoostRow) {
+                int selected = org.telegram.messenger.dekogram.DekogramConfig.getDownloadBoostMode();
+                Dialog dlg = AlertsCreator.createSingleChoiceDialog(getParentActivity(), new String[]{
+                                "Disabled (4 Streams)",
+                                "Fast (8 Parallel Streams)",
+                                "Maximum (12 Parallel Streams)"},
+                        "Download Speed Boost", selected, (dialog, which) -> {
+                            org.telegram.messenger.dekogram.DekogramConfig.setDownloadBoostMode(which);
+                            if (listAdapter != null) {
+                                listAdapter.notifyItemChanged(position);
+                            }
+                        });
+                setVisibleDialog(dlg);
+                dlg.show();
             } else if (position == dataUsageRow) {
                 presentFragment(new DataUsage2Activity());
             } else if (position == storageNumRow) {
@@ -753,7 +769,19 @@ public class DataSettingsActivity extends BaseFragment {
                         } else {
                             value = "File Name (Default)";
                         }
-                        textCell.setTextAndValue("Video Download Naming", value, false, resetDownloadRow >= 0);
+                        textCell.setTextAndValue("Video Download Naming", value, false, true);
+                    } else if (position == downloadSpeedBoostRow) {
+                        textCell.setIcon(0);
+                        String value;
+                        int mode = org.telegram.messenger.dekogram.DekogramConfig.getDownloadBoostMode();
+                        if (mode == org.telegram.messenger.dekogram.DekogramConfig.DOWNLOAD_BOOST_OFF) {
+                            value = "Disabled (4 Streams)";
+                        } else if (mode == org.telegram.messenger.dekogram.DekogramConfig.DOWNLOAD_BOOST_FAST) {
+                            value = "Fast (8 Streams)";
+                        } else {
+                            value = "Maximum (12 Streams)";
+                        }
+                        textCell.setTextAndValue("Download Speed Boost", value, false, resetDownloadRow >= 0);
                     }
                     break;
                 }
@@ -911,7 +939,7 @@ public class DataSettingsActivity extends BaseFragment {
         }
 
         public boolean isRowEnabled(int position) {
-            return position == mobileRow || position == roamingRow || position == wifiRow || position == videoDownloadNamingRow || position == storageUsageRow || position == useLessDataForCallsRow || position == dataUsageRow || position == proxyRow || position == clearDraftsRow ||
+            return position == mobileRow || position == roamingRow || position == wifiRow || position == videoDownloadNamingRow || position == downloadSpeedBoostRow || position == storageUsageRow || position == useLessDataForCallsRow || position == dataUsageRow || position == proxyRow || position == clearDraftsRow ||
                     position == enableCacheStreamRow || position == enableStreamRow || position == enableAllStreamRow || position == enableMkvRow || position == quickRepliesRow || position == autoplayVideoRow || position == autoplayGifsRow ||
                     position == storageNumRow || position == saveToGalleryGroupsRow || position == saveToGalleryPeerRow || position == saveToGalleryChannelsRow || position == resetDownloadRow;
         }
