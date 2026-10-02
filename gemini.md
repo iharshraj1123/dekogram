@@ -127,6 +127,10 @@ Dekogram is a private, clean fork of the official Telegram Android client (`DrKL
 * **`DataSettingsActivity.java`**: Added "Video Download Naming" row with single-choice selection dialog under Automatic Media Download settings.
 * **`MessagesController.java`**: Fixed `isUserNoForwards(TLRPC.UserFull)` CI compile error by removing invalid `userFull.noforwards` reference and returning `false`.
 
+### 23. Active Sessions & Device Branding
+* **`DekogramUI.java`**: Added `formatSessionAppName()` mapping server-returned API client names (`Nekogram` associated with `APP_ID = 442495`) to `Dekogram`.
+* **`SessionCell.java`, `SessionBottomSheet.java`**: Formatted `session.app_name` with `DekogramUI.formatSessionAppName()`, ensuring "This Device" and active sessions list consistently display "Dekogram".
+
 ---
 
 ## Build Error Prevention & Maintenance Standards
