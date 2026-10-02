@@ -139,6 +139,20 @@ Dekogram is a private, clean fork of the official Telegram Android client (`DrKL
 
 ---
 
+## Cloud Build Protocol (GitHub Actions)
+
+> **Build Policy**: Always build the app using GitHub Actions (never build locally, avoiding heavy C++/CMake resource load and local toolchain divergence).
+> **Trigger Conditions**: Only trigger or start a build when:
+> 1. The user explicitly requests a new build.
+> 2. The last CI build failed and fixes were applied.
+
+### How to Build via GitHub:
+* **Trigger on Push**: Pushing commits to `main` (`git push origin main`) automatically kicks off `.github/workflows/build-apk.yml`.
+* **Manual Dispatch**: Trigger manually without code changes via GitHub CLI (`gh workflow run build-apk.yml`) or via the Actions tab on GitHub.
+* **Output Artifacts**: Once compilation completes, the standalone APK is published directly to [Dekogram Releases (Latest)](https://github.com/iharshraj1123/dekogram/releases/tag/latest) as `Dekogram.apk` and uploaded to the Actions run summary.
+
+---
+
 ## Installation & Deployment
 
 ### 1. Direct Download on Phone (No ADB Needed)

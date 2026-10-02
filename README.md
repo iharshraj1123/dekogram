@@ -1,46 +1,139 @@
-## Telegram messenger for Android
+# Dekogram
 
-[Telegram](https://telegram.org) is a messaging app with a focus on speed and security. It’s superfast, simple and free.
-This repo contains the official source code for [Telegram App for Android](https://play.google.com/store/apps/details?id=org.telegram.messenger).
+<p align="center">
+  <img src="TMessagesProj/src/main/res/mipmap-xxxhdpi/ic_launcher.png" width="128" height="128" alt="Dekogram Logo" />
+</p>
 
-## Creating your Telegram Application
+<p align="center">
+  <strong>A high-performance Telegram Android client specialized in unrestricted downloads, zero-redundancy storage, and privacy freedom.</strong>
+</p>
 
-We welcome all developers to use our API and source code to create applications on our platform.
-There are several things we require from **all developers** for the moment.
+<p align="center">
+  <a href="https://github.com/iharshraj1123/dekogram/releases/latest"><img src="https://img.shields.io/github/v/release/iharshraj1123/dekogram?label=Latest%20Release&color=blue" alt="Latest Release"></a>
+  <a href="https://github.com/iharshraj1123/dekogram/actions/workflows/build-apk.yml"><img src="https://img.shields.io/github/actions/workflow/status/iharshraj1123/dekogram/build-apk.yml?label=CI%20Build&color=green" alt="CI Status"></a>
+  <img src="https://img.shields.io/badge/Architecture-arm64--v8a-orange" alt="Architecture">
+  <img src="https://img.shields.io/badge/License-GPL%20v2%20or%20later-lightgrey" alt="License">
+</p>
 
-1. [**Obtain your own api_id**](https://core.telegram.org/api/obtaining_api_id) for your application.
-2. Please **do not** use the name Telegram for your app — or make sure your users understand that it is unofficial.
-3. Kindly **do not** use our standard logo (white paper plane in a blue circle) as your app's logo.
-3. Please study our [**security guidelines**](https://core.telegram.org/mtproto/security_guidelines) and take good care of your users' data and privacy.
-4. Please remember to publish **your** code too in order to comply with the licences.
+---
 
-### API, Protocol documentation
+## 🌟 Overview
 
-Telegram API manuals: https://core.telegram.org/api
+**Dekogram** is an independent, clean fork of the official Telegram Android app (`DrKLO/Telegram`). It re-engineers Telegram's media pipeline from the ground up to eliminate artificial download restrictions, double-storage caching waste, and forced cloud auto-downloads—all while preserving official MTProto protocol compatibility, full end-to-end encryption, and a zero-warning Google Play Protect footprint.
 
-MTproto protocol manuals: https://core.telegram.org/mtproto
+---
 
-### Compilation Guide
+## 📥 The Specialized Download Engine
 
-**Note**: In order to support [reproducible builds](https://core.telegram.org/reproducible-builds), this repo contains dummy release.keystore,  google-services.json and filled variables inside BuildVars.java. Before publishing your own APKs please make sure to replace all these files with your own.
+Unlike stock Telegram, Dekogram is specifically built for power downloaders and archival enthusiasts:
 
-You will require Android Studio 2025.1.4, Android NDK 27.2.12479018 and Android SDK 36.
+### 🚀 Direct-to-Storage Auto Export
+Completed video and document downloads automatically bypass hidden app sandbox folders and route straight to your public storage:
+* **Videos**: `Downloads/Dekogram/Videos/`
+* **Documents & Files**: `Downloads/Dekogram/`
+* **Images**: `Pictures/Dekogram/`
 
-1. Clone the Telegram source code with its submodules:
-   ```bash
-   git clone --recursive --shallow-submodules https://github.com/DrKLO/Telegram.git Telegram
-   ```
-   In case you forgot the `--recursive` flag, change to the `Telegram` directory and run:
-   ```bash
-   git submodule init && git submodule update --init --recursive --depth=1
-   ```
-2. Copy your release.keystore into TMessagesProj/config
-3. Fill out RELEASE_KEY_PASSWORD, RELEASE_KEY_ALIAS, RELEASE_STORE_PASSWORD in gradle.properties to access your  release.keystore
-4.  Go to https://console.firebase.google.com/, create two android apps with application IDs org.telegram.messenger and org.telegram.messenger.beta, turn on firebase messaging and download google-services.json, which should be copied to the same folder as TMessagesProj.
-5. Open the project in the Studio (note that it should be opened, NOT imported).
-6. Fill out values in TMessagesProj/src/main/java/org/telegram/messenger/BuildVars.java – there’s a link for each of the variables showing where and which data to obtain.
-7. You are ready to compile Telegram.
+### 💾 Single-File Zero Waste Storage
+Stock Telegram downloads files twice: once in the private internal sandbox (`Android/data/...`) and once again when you tap "Save to gallery". 
+* **Dekogram eliminates duplicate storage consumption**: When a download completes, the app relinks Telegram's internal file database directly to the public copy in `Downloads/Dekogram/Videos/` and purges the internal cached duplicate. You get **50% storage savings**.
 
-### Localization
+### 🏷️ Clean Original Filenames
+* Eliminates Telegram’s forced `VID_2026xxxx` and generic hashes.
+* Preserves original document and clip names exactly as uploaded by channel authors.
+* Uses clean collision handling: appends a compact random 5-digit suffix (`_XXXXX`) **only** when a duplicate filename already exists.
 
-We moved all translations to https://translations.telegram.org/en/android/. Please use it.
+### 📅 Post Timestamp Synchronization
+* Synchronizes filesystem `lastModified` and Android MediaStore metadata (`DATE_TAKEN`, `DATE_MODIFIED`, `DATE_ADDED`) with the **original Telegram post date**.
+* Your gallery, VLC, and MX Player sort media chronologically by **when it was originally posted**, not when you downloaded it.
+
+### 🔋 Uninterrupted Background Downloads
+* Features an Android foreground service with a `PARTIAL_WAKE_LOCK` and high-performance Wi-Fi lock.
+* Downloads run continuously with an ongoing notification progress bar—**no timeouts or pausing** when your screen turns off or the app is minimized.
+
+### 🎬 External Player Integration
+* Added an instant **"Open in..."** action to all video menus, streaming or opening clips directly into VLC, MX Player, MPV, or your external player of choice.
+
+---
+
+## 🔓 Unrestricted Freedom & Privacy
+
+* **Restriction Bypass (`noforwards`)**: Bypasses channel and group forward/save blocks. *"Saving content is restricted"* prompts are completely eliminated—Save to Gallery, Save to Downloads, and Sharing are permanently unlocked.
+* **Self-Destructing / TTL Media Saving**: The save button remains fully available even on disappearing or timed photos/videos.
+* **Global Screenshot & Screen Capture Access**: Stripped `FLAG_SECURE` app-wide. Screenshots and screen recording work everywhere, including restricted channels and secret chats.
+* **Tracker & Telemetry Cleaned**: Completely stripped Microsoft AppCenter crash telemetry and Google Firebase UserActions background indexing.
+* **Block Sponsored Messages & Video Ads**: Sponsored channel ads and video network ad units are blocked at the source.
+* **Auto-Download Cloud Killswitch**: Default auto-download presets are initialized to disabled, and Telegram cloud server configs are blocked from turning background media auto-downloads back on.
+
+---
+
+## ⚡ Unique Quirks & Quality-of-Life
+
+| Feature | Dekogram Behavior | Stock Telegram Behavior |
+| :--- | :--- | :--- |
+| **Max Accounts** | **10 Accounts** (Engineered in native C++ & Java) | 3 accounts (5 with Premium) |
+| **Stories Bar** | **Hidden** cleanly with 0px layout shift | Dominates top of chat list |
+| **Accidental Calls** | **Confirmation alert** before initiating calls | Taps call immediately |
+| **Sticker Sends** | **Confirmation preview** before sending stickers | Single tap sends immediately |
+| **Voice / Video Notes** | Touch release enters **review draft** mode | Releases send instantly |
+| **Clean Package ID** | `org.dekogram.messenger` (No Play Protect blocks) | Conflicts with Play Store |
+
+---
+
+## 🔄 Autonomous Updates & Upstream Engine
+
+Dekogram remains synchronized with upstream official Telegram while ensuring custom features never break:
+
+1. **Modular Hook Architecture**:
+   All Dekogram logic resides in an isolated package (`org.telegram.messenger.dekogram`). Patches to official Telegram classes are lightweight 1-line delegates, allowing upstream merges with 90%+ conflict reduction.
+2. **Autonomous Cloud Pipeline**:
+   A scheduled GitHub Actions workflow queries `DrKLO/Telegram` tags every 6 hours. When Telegram releases a new tag, GitHub cloud automatically merges, compiles with ccache, and publishes the new release asset.
+3. **Native In-App Updater**:
+   * Dekogram checks [GitHub Releases](https://github.com/iharshraj1123/dekogram/releases/latest) in the background.
+   * Single-tap on the version text at the bottom of **Settings** checks for updates on demand.
+   * Downloads and installs directly via Android's secure `FileProvider` without needing ADB or a computer.
+
+---
+
+## 📲 Installation
+
+### Option 1: Direct APK Download (Recommended)
+1. Download `Dekogram.apk` directly from the [Latest Release](https://github.com/iharshraj1123/dekogram/releases/latest).
+2. Tap the downloaded APK to install.
+3. Login using your phone number or QR code.
+
+### Option 2: Automatic Updates via Obtainium
+1. Install [Obtainium](https://github.com/ImranRXZ/Obtainium).
+2. Add App -> Paste: `https://github.com/iharshraj1123/dekogram`
+3. Obtainium will automatically track releases and notify you whenever a new APK is ready.
+
+### Option 3: Install via ADB
+```bash
+adb push Dekogram.apk /data/local/tmp/app.apk
+adb shell pm install -r -t -d /data/local/tmp/app.apk
+adb shell rm /data/local/tmp/app.apk
+```
+
+---
+
+## 🛠️ Building from Source
+
+Dekogram builds the standalone variant target (`:TMessagesProj_AppStandalone:assembleAfatDebug`) optimized for ARM64 (`arm64-v8a`):
+
+### Requirements
+* JDK 17
+* Android SDK 36 (Build Tools 35.0.0)
+* Android NDK `27.2.12479018`
+* CMake `3.22.1`
+
+### Build Command
+```bash
+./gradlew :TMessagesProj_AppStandalone:assembleAfatDebug --no-daemon
+```
+The compiled APK will be located at:
+`TMessagesProj_AppStandalone/build/outputs/apk/afat/debug/app.apk`
+
+---
+
+## ⚖️ License
+Dekogram is licensed under the **GNU General Public License v2.0 or later** (GPLv2+). See [LICENSE](LICENSE) for details.
+Based on [Telegram for Android](https://github.com/DrKLO/Telegram) by Nikolai Kudashov.
