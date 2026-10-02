@@ -1,8 +1,6 @@
 name: Build & Auto-Sync Dekogram APK
 
 on:
-  schedule:
-    - cron: '0 */6 * * *'
   push:
     branches: [ master, main ]
     paths-ignore:
@@ -97,7 +95,7 @@ jobs:
             echo "tag_name=$LATEST_TAG" >> $GITHUB_OUTPUT
           else
             echo "Merge conflict encountered. Aborting merge safely."
-            git merge --abort
+            git merge --abort 2>/dev/null || true
             echo "should_build=false" >> $GITHUB_OUTPUT
             echo "has_conflict=true" >> $GITHUB_OUTPUT
             echo "tag_name=$LATEST_TAG" >> $GITHUB_OUTPUT
@@ -164,6 +162,9 @@ jobs:
 
       - name: Build APK (TMessagesProj_AppStandalone)
         if: steps.sync_check.outputs.should_build == 'true'
+        env:
+          TELEGRAM_APP_ID: ${{ secrets.TELEGRAM_APP_ID }}
+          TELEGRAM_APP_HASH: ${{ secrets.TELEGRAM_APP_HASH }}
         run: ./gradlew :TMessagesProj_AppStandalone:assembleAfatDebug --no-daemon --build-cache --stacktrace
 
       - name: Show ccache stats

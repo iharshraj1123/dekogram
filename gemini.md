@@ -101,7 +101,7 @@ Dekogram is a private, clean fork of the official Telegram Android client (`DrKL
 ### 18. Third-Party Client Login Architecture (Nekogram Standard) & Zero-Warning Install
 * **Package Identity**: Configured application package as `org.dekogram.messenger` across `gradle.properties`, `build.gradle`, account sync, and `google-services.json`. Completely eliminates Google Play Protect impersonation blocks.
 * **Permission Cleanup**: Stripped high-risk `SEND_SMS` and `READ_CALL_LOG` permissions from `AndroidManifest_standalone.xml`. Play Protect scans clean without malware warnings.
-* **API Credentials**: Configured third-party Telegram client API credentials in `BuildVars.java` (`APP_ID = 442495`, `APP_HASH = "873ffaceba76e791ff2491224a3cdb49"`, `SUPPORTS_PASSKEYS = false`). Telegram MTProto servers validate third-party package names, enabling verification codes and account login without official package restrictions.
+* **API Credentials & Secret Injection**: Configured dynamic API credential injection via `BuildConfig.APP_ID` and `BuildConfig.APP_HASH`. In CI, credentials (`TELEGRAM_APP_ID`, `TELEGRAM_APP_HASH`) are injected securely from GitHub Secrets; locally, from gitignored `local.properties`. Keeps personal API keys completely out of public Git commits while compiling Dekogram credentials into production APKs. Telegram MTProto servers natively identify active sessions as Dekogram across all client devices.
 * **`LoginActivity.java`**: Bypassed telephony and call-log permission trap via Nekogram guard (`false && ...`) in `onConfirm` and `onNextPressed`, directly advancing to phone confirmation and verification code dispatch.
 
 ### 19. Single-File Storage, Post Timestamp Sync & Clean Naming
