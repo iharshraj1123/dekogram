@@ -17,45 +17,45 @@
 
 ---
 
-## 🌟 Overview
+## Overview
 
 **Dekogram** is an independent, clean fork of the official Telegram Android app (`DrKLO/Telegram`). It re-engineers Telegram's media pipeline from the ground up to eliminate artificial download restrictions, double-storage caching waste, and forced cloud auto-downloads—all while preserving official MTProto protocol compatibility, full end-to-end encryption, and a zero-warning Google Play Protect footprint.
 
 ---
 
-## 📥 The Specialized Download Engine
+## The Specialized Download Engine
 
 Unlike stock Telegram, Dekogram is specifically built for power downloaders and archival enthusiasts:
 
-### 🚀 Direct-to-Storage Auto Export
+### Direct-to-Storage Auto Export
 Completed video and document downloads automatically bypass hidden app sandbox folders and route straight to your public storage:
 * **Videos**: `Downloads/Dekogram/Videos/`
 * **Documents & Files**: `Downloads/Dekogram/`
 * **Images**: `Pictures/Dekogram/`
 
-### 💾 Single-File Zero Waste Storage
+### Single-File Zero Waste Storage
 Stock Telegram downloads files twice: once in the private internal sandbox (`Android/data/...`) and once again when you tap "Save to gallery". 
 * **Dekogram eliminates duplicate storage consumption**: When a download completes, the app relinks Telegram's internal file database directly to the public copy in `Downloads/Dekogram/Videos/` and purges the internal cached duplicate. You get **50% storage savings**.
 
-### 🏷️ Clean Original Filenames
+### Clean Original Filenames
 * Eliminates Telegram’s forced `VID_2026xxxx` and generic hashes.
 * Preserves original document and clip names exactly as uploaded by channel authors.
 * Uses clean collision handling: appends a compact random 5-digit suffix (`_XXXXX`) **only** when a duplicate filename already exists.
 
-### 📅 Post Timestamp Synchronization
+### Post Timestamp Synchronization
 * Synchronizes filesystem `lastModified` and Android MediaStore metadata (`DATE_TAKEN`, `DATE_MODIFIED`, `DATE_ADDED`) with the **original Telegram post date**.
 * Your gallery, VLC, and MX Player sort media chronologically by **when it was originally posted**, not when you downloaded it.
 
-### 🔋 Uninterrupted Background Downloads
+### Uninterrupted Background Downloads
 * Features an Android foreground service with a `PARTIAL_WAKE_LOCK` and high-performance Wi-Fi lock.
 * Downloads run continuously with an ongoing notification progress bar—**no timeouts or pausing** when your screen turns off or the app is minimized.
 
-### 🎬 External Player Integration
+### External Player Integration
 * Added an instant **"Open in..."** action to all video menus, streaming or opening clips directly into VLC, MX Player, MPV, or your external player of choice.
 
 ---
 
-## 🔓 Unrestricted Freedom & Privacy
+## Unrestricted Freedom & Privacy
 
 * **Restriction Bypass (`noforwards`)**: Bypasses channel and group forward/save blocks. *"Saving content is restricted"* prompts are completely eliminated—Save to Gallery, Save to Downloads, and Sharing are permanently unlocked.
 * **Self-Destructing / TTL Media Saving**: The save button remains fully available even on disappearing or timed photos/videos.
@@ -66,7 +66,7 @@ Stock Telegram downloads files twice: once in the private internal sandbox (`And
 
 ---
 
-## ⚡ Unique Quirks & Quality-of-Life
+## Unique Quirks & Quality-of-Life
 
 | Feature | Dekogram Behavior | Stock Telegram Behavior |
 | :--- | :--- | :--- |
@@ -79,7 +79,7 @@ Stock Telegram downloads files twice: once in the private internal sandbox (`And
 
 ---
 
-## 🔄 Autonomous Updates & Upstream Engine
+## Autonomous Updates & Upstream Engine
 
 Dekogram remains synchronized with upstream official Telegram while ensuring custom features never break:
 
@@ -94,7 +94,7 @@ Dekogram remains synchronized with upstream official Telegram while ensuring cus
 
 ---
 
-## 📲 Installation
+## Installation
 
 ### Option 1: Direct APK Download (Recommended)
 1. Download `Dekogram.apk` directly from the [Latest Release](https://github.com/iharshraj1123/dekogram/releases/latest).
@@ -115,7 +115,7 @@ adb shell rm /data/local/tmp/app.apk
 
 ---
 
-## 🛠️ Building from Source
+## Building from Source
 
 Dekogram builds the standalone variant target (`:TMessagesProj_AppStandalone:assembleAfatDebug`) optimized for ARM64 (`arm64-v8a`):
 
@@ -134,6 +134,6 @@ The compiled APK will be located at:
 
 ---
 
-## ⚖️ License
+## License
 Dekogram is licensed under the **GNU General Public License v2.0 or later** (GPLv2+). See [LICENSE](LICENSE) for details.
 Based on [Telegram for Android](https://github.com/DrKLO/Telegram) by Nikolai Kudashov.
