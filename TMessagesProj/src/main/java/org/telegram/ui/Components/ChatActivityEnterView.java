@@ -7456,24 +7456,7 @@ public class ChatActivityEnterView extends FrameLayout implements
     }
 
     protected boolean showStickerConfirmAlert(Runnable onConfirmed) {
-        if (getContext() != null) {
-            org.telegram.ui.ActionBar.AlertDialog.Builder builder = new org.telegram.ui.ActionBar.AlertDialog.Builder(getContext());
-            builder.setTitle(LocaleController.getString(R.string.SendStickerPreview));
-            builder.setMessage(LocaleController.getString(R.string.SendStickerPreview) + "?");
-            builder.setPositiveButton(LocaleController.getString(R.string.Send), (dialog, which) -> {
-                if (onConfirmed != null) {
-                    onConfirmed.run();
-                }
-            });
-            builder.setNegativeButton(LocaleController.getString(R.string.Cancel), null);
-            try {
-                builder.show();
-                return true;
-            } catch (Exception e) {
-                FileLog.e(e);
-            }
-        }
-        return false;
+        return org.telegram.messenger.dekogram.DekogramUI.showStickerConfirmAlert(getContext(), onConfirmed);
     }
 
     public static boolean checkPremiumAnimatedEmoji(int currentAccount, long dialogId, BaseFragment parentFragment, FrameLayout container, CharSequence message) {

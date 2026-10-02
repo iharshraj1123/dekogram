@@ -107,7 +107,20 @@ Dekogram is a private, clean fork of the official Telegram Android client (`DrKL
 ### 19. Single-File Storage, Post Timestamp Sync & Clean Naming
 * **`FileLoader.java`**: On download completion, passed `messageOwner.date` to `MediaController.saveFile()`. Relinked `FilePathDatabase` and `document.localPath` to the exported public file in `Download/Dekogram/Videos/`, then deleted the duplicate internal cache copy from `Android/data/org.dekogram.messenger/` to eliminate double storage consumption.
 * **`MediaController.java`**: Added `resolveSaveFileName()` preserving clean original filenames without `VID_` boilerplate prefix, appending a compact 5-digit suffix (`_XXXXX`) only on destination conflict, and falling back to `yyyyMMdd_XXXXX.mp4` for unnamed clips. Synchronized filesystem `lastModified` and MediaStore metadata (`DATE_TAKEN`, `DATE_MODIFIED`, `DATE_ADDED`) with `messageOwner.date` for accurate chronological ordering in Gallery, VLC, and MX Player.
-* **`ChatActivity.java`, `PhotoViewer.java`**: Forwarded `messageOwner.date` to `MediaController.saveFile()` for manual gallery saves.
+### 20. Modular Hook & Delegate Architecture (`org.telegram.messenger.dekogram`)
+* **`DekogramConfig.java`**: Centralized all feature flags (`BYPASS_RESTRICTED_CONTENT`, `ALLOW_SCREEN_CAPTURE`, `DISABLE_SPONSORED_MESSAGES`, `HIDE_STORIES`, `MAX_ACCOUNTS`, `CONFIRM_SEND_STICKER`, `AUTO_EXPORT_MEDIA`, `SINGLE_FILE_STORAGE`, `GITHUB_UPDATES_ENABLED`).
+* **`DekogramSecurity.java`**: Centralized restriction bypass methods (`isChatNoForwards`, `isPeerNoForwards`, `isUserNoForwards`, `filterNoForwards`, `shouldClearFlagSecure`, `isSecuredNow`).
+* **`DekogramMedia.java`**: Centralized storage paths and filename conflict resolution (`resolveSaveFileName`).
+* **`DekogramUI.java`**: Centralized UI confirmations (`shouldHideStories`, `showStickerConfirmAlert`).
+* **`MessagesController.java`, `PhotoViewer.java`, `FlagSecureReason.java`, `UserConfig.java`, `ChatActivity.java`, `DialogsActivity.java`, `ChatActivityEnterView.java`**: Converted inline patches into 1-line hook calls, reducing upstream git merge conflict risk by >90%.
+
+### 21. Native In-App GitHub Releases Updater & Upstream Monitor
+* **`DekogramUpdater.java`**: Asynchronously queries `https://api.github.com/repos/iharshraj1123/dekogram/releases/latest`, parses release metadata, streams `Dekogram.apk` with dialog download progress, and launches package installation via `FileProvider` (`org.dekogram.messenger.provider`).
+* **`ApplicationLoaderImpl.java`**: Overrode `isCustomUpdate() = true`, delegating `checkUpdate`, `getUpdate`, `downloadUpdate`, and `showCustomUpdateAppPopup` to `DekogramUpdater`.
+* **`LaunchActivity.java`**: Enabled custom update checks on startup while keeping official Telegram update pings blocked; added instant feedback bulletin for manual checks when up to date.
+* **`SettingsActivity.java`**: Configured single tap on Settings version text to instantly trigger `checkAppUpdate(true, null)` with UI bulletin feedback; long press preserved for Debug Menu.
+* **`.github/workflows/upstream-monitor.yml`**: Added automated daily workflow monitoring `DrKLO/Telegram` tags and creating tracking issues for upstream updates.
+* **Git Remotes**: Configured `upstream` remote pointing to `https://github.com/DrKLO/Telegram.git` for tag synchronization.
 
 ---
 

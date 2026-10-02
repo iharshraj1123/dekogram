@@ -6699,23 +6699,43 @@ public class MessagesController extends BaseController implements NotificationCe
     }
 
     public boolean isChatNoForwards(TLRPC.Chat chat) {
-        return false;
+        if (org.telegram.messenger.dekogram.DekogramConfig.BYPASS_RESTRICTED_CONTENT) {
+            return false;
+        }
+        return chat != null && chat.noforwards;
     }
 
     public boolean isChatNoForwards(long chatId) {
-        return false;
+        if (org.telegram.messenger.dekogram.DekogramConfig.BYPASS_RESTRICTED_CONTENT) {
+            return false;
+        }
+        return isChatNoForwards(getChat(chatId));
     }
 
     public boolean isPeerNoForwards(long dialogId) {
+        if (org.telegram.messenger.dekogram.DekogramConfig.BYPASS_RESTRICTED_CONTENT) {
+            return false;
+        }
+        if (DialogObject.isChatDialog(dialogId)) {
+            return isChatNoForwards(-dialogId);
+        } else if (DialogObject.isUserDialog(dialogId)) {
+            return isUserNoForwards(dialogId);
+        }
         return false;
     }
 
     public boolean isUserNoForwards(long userId) {
-        return false;
+        if (org.telegram.messenger.dekogram.DekogramConfig.BYPASS_RESTRICTED_CONTENT) {
+            return false;
+        }
+        return isUserNoForwards(getUserFull(userId));
     }
 
     public boolean isUserNoForwards(TLRPC.UserFull userFull) {
-        return false;
+        if (org.telegram.messenger.dekogram.DekogramConfig.BYPASS_RESTRICTED_CONTENT) {
+            return false;
+        }
+        return userFull != null && userFull.noforwards;
     }
 
     public TLRPC.User getUser(Long id) {
@@ -21597,7 +21617,10 @@ public class MessagesController extends BaseController implements NotificationCe
     }
 
     public SponsoredMessagesInfo getSponsoredMessages(long dialogId) {
-        return null;
+        if (org.telegram.messenger.dekogram.DekogramConfig.DISABLE_SPONSORED_MESSAGES) {
+            return null;
+        }
+        return sponsoredMessages.get(dialogId);
     }
 
     public void clearSendAsPeers() {
@@ -24202,7 +24225,10 @@ public class MessagesController extends BaseController implements NotificationCe
     }
 
     public boolean isSponsoredDisabled() {
-        return true;
+        if (org.telegram.messenger.dekogram.DekogramConfig.DISABLE_SPONSORED_MESSAGES) {
+            return true;
+        }
+        return false;
     }
 
     private boolean loadingAvailableEffects;

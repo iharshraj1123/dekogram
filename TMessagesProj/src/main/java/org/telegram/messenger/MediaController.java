@@ -5790,35 +5790,7 @@ public class MediaController implements AudioManager.OnAudioFocusChangeListener,
     }
 
     public static String resolveSaveFileName(File targetDir, String name, String extension, int type, long postDateSeconds) {
-        if (TextUtils.isEmpty(name) || name.trim().isEmpty()) {
-            java.util.Date date = postDateSeconds > 0 ? new java.util.Date(postDateSeconds * 1000L) : new java.util.Date();
-            String dateStr = new java.text.SimpleDateFormat("yyyyMMdd", Locale.US).format(date);
-            int random5 = 10000 + Utilities.random.nextInt(90000);
-            String cleanExt = !TextUtils.isEmpty(extension) ? extension : (type == 1 ? "mp4" : (type == 0 ? "jpg" : "bin"));
-            return dateStr + "_" + random5 + "." + cleanExt;
-        }
-
-        String finalName = name.trim();
-        if (!TextUtils.isEmpty(extension) && !finalName.toLowerCase().endsWith("." + extension.toLowerCase())) {
-            finalName = finalName + "." + extension;
-        }
-
-        if (targetDir != null && targetDir.exists()) {
-            File testFile = new File(targetDir, finalName);
-            if (testFile.exists()) {
-                int dot = finalName.lastIndexOf('.');
-                String base = dot > 0 ? finalName.substring(0, dot) : finalName;
-                String ext = dot > 0 ? finalName.substring(dot) : "";
-                for (int i = 0; i < 10; i++) {
-                    int random5 = 10000 + Utilities.random.nextInt(90000);
-                    String candidateName = base + "_" + random5 + ext;
-                    if (!new File(targetDir, candidateName).exists()) {
-                        return candidateName;
-                    }
-                }
-            }
-        }
-        return finalName;
+        return org.telegram.messenger.dekogram.DekogramMedia.resolveSaveFileName(targetDir, name, extension, type, postDateSeconds);
     }
 
     private static Uri saveFileInternal(int type, File sourceFile, String filename) {

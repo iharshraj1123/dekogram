@@ -12747,9 +12747,11 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
             dialogStoriesCell.setVisibility(View.GONE);
         }
         dialogStoriesCellVisible = false;
-        hasStories = false;
-        hasOnlySlefStories = false;
-        if (true) return;
+        if (org.telegram.messenger.dekogram.DekogramUI.shouldHideStories()) {
+            hasStories = false;
+            hasOnlySlefStories = false;
+            return;
+        }
         if (dialogStoriesCell == null || storiesVisibilityAnimator != null || rightSlidingDialogContainer != null && rightSlidingDialogContainer.hasFragment() || searchIsShowed || actionBar == null || actionBar.isActionModeShowed() || onlySelect) {
             return;
         }

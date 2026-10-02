@@ -109,6 +109,53 @@ public class ApplicationLoaderImpl extends ApplicationLoader {
     }
 
     @Override
+    public boolean isCustomUpdate() {
+        return org.telegram.messenger.dekogram.DekogramConfig.GITHUB_UPDATES_ENABLED;
+    }
+
+    @Override
+    public void checkUpdate(boolean force, Runnable whenDone) {
+        org.telegram.messenger.dekogram.DekogramUpdater.checkUpdate(force, whenDone);
+    }
+
+    @Override
+    public BetaUpdate getUpdate() {
+        return org.telegram.messenger.dekogram.DekogramUpdater.getPendingUpdate();
+    }
+
+    @Override
+    public void downloadUpdate() {
+        if (LaunchActivity.instance != null && org.telegram.messenger.dekogram.DekogramUpdater.getPendingUpdate() instanceof org.telegram.messenger.dekogram.DekogramUpdater.DekogramBetaUpdate) {
+            org.telegram.messenger.dekogram.DekogramUpdater.startDownloadWithProgress(LaunchActivity.instance, (org.telegram.messenger.dekogram.DekogramUpdater.DekogramBetaUpdate) org.telegram.messenger.dekogram.DekogramUpdater.getPendingUpdate());
+        }
+    }
+
+    @Override
+    public void cancelDownloadingUpdate() {
+        org.telegram.messenger.dekogram.DekogramUpdater.cancelDownloading();
+    }
+
+    @Override
+    public boolean isDownloadingUpdate() {
+        return org.telegram.messenger.dekogram.DekogramUpdater.isDownloading();
+    }
+
+    @Override
+    public float getDownloadingUpdateProgress() {
+        return org.telegram.messenger.dekogram.DekogramUpdater.getProgress();
+    }
+
+    @Override
+    public File getDownloadedUpdateFile() {
+        return org.telegram.messenger.dekogram.DekogramUpdater.getDownloadedFile();
+    }
+
+    @Override
+    public boolean showCustomUpdateAppPopup(Context context, BetaUpdate update, int account) {
+        return org.telegram.messenger.dekogram.DekogramUpdater.showUpdateDialog(context, update);
+    }
+
+    @Override
     public IUpdateLayout takeUpdateLayout(Activity activity, ViewGroup sideMenuContainer) {
         return new UpdateLayout(activity, sideMenuContainer);
     }

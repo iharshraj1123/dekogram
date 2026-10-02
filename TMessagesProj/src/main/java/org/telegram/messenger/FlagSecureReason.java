@@ -64,12 +64,26 @@ public class FlagSecureReason {
             return;
         }
 
-        window.clearFlags(WindowManager.LayoutParams.FLAG_SECURE);
+        if (org.telegram.messenger.dekogram.DekogramSecurity.shouldClearFlagSecure()) {
+            window.clearFlags(WindowManager.LayoutParams.FLAG_SECURE);
+            AndroidUtilities.logFlagSecure();
+            return;
+        }
+
+        boolean secure = isSecuredNow(window);
+        if (secure) {
+            window.addFlags(WindowManager.LayoutParams.FLAG_SECURE);
+        } else {
+            window.clearFlags(WindowManager.LayoutParams.FLAG_SECURE);
+        }
         AndroidUtilities.logFlagSecure();
     }
 
     public static boolean isSecuredNow(Window window) {
-        return false;
+        if (org.telegram.messenger.dekogram.DekogramSecurity.isSecuredNow(false) == false) {
+            return false;
+        }
+        return currentSecureReasons != null && currentSecureReasons.containsKey(window);
     }
 
     public interface FlagSecureCondition {

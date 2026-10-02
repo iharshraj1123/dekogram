@@ -5945,7 +5945,7 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
         if (!ApplicationLoader.isStandaloneBuild() && !ApplicationLoader.isBetaBuild()) {
             return;
         }
-        if (!force && !BuildVars.CHECK_UPDATES) {
+        if (!force && !BuildVars.CHECK_UPDATES && !ApplicationLoader.applicationLoaderInstance.isCustomUpdate()) {
             return;
         }
         if (ApplicationLoader.applicationLoaderInstance.isCustomUpdate()) {
@@ -5956,11 +5956,11 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
                 final BetaUpdate pendingUpdate = ApplicationLoader.applicationLoaderInstance.getUpdate();
                 if (progress != null) {
                     progress.end();
-                    if (pendingUpdate == null) {
-                        BaseFragment fragment = getLastFragment();
-                        if (fragment != null) {
-                            BulletinFactory.of(fragment).createSimpleBulletin(R.raw.chats_infotip, LocaleController.getString(R.string.YourVersionIsLatest)).show();
-                        }
+                }
+                if (pendingUpdate == null && (force || progress != null)) {
+                    BaseFragment fragment = getLastFragment();
+                    if (fragment != null) {
+                        BulletinFactory.of(fragment).createSimpleBulletin(R.raw.chats_infotip, LocaleController.getString(R.string.YourVersionIsLatest)).show();
                     }
                 }
                 if (pendingUpdate != null && !ApplicationLoader.applicationLoaderInstance.isDownloadingUpdate() && (first || prevUpdate == null || pendingUpdate.higherThan(prevUpdate))) {

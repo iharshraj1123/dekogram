@@ -470,16 +470,13 @@ public class SettingsActivity extends BaseFragment implements NotificationCenter
         versionView.setGravity(Gravity.CENTER);
         versionView.setBackground(Theme.createSelectorDrawable(getThemedColor(Theme.key_listSelector), Theme.RIPPLE_MASK_ALL));
         versionView.setOnClickListener(v -> {
-            versionViewPressCount++;
-            if (versionViewPressCount < 2 && !BuildVars.DEBUG_PRIVATE_VERSION) {
-                try {
-                    Toast.makeText(getParentActivity(), getString(R.string.DebugMenuLongPress), Toast.LENGTH_SHORT).show();
-                } catch (Exception e) {
-                    FileLog.e(e);
-                }
-                return;
+            if (getParentActivity() instanceof LaunchActivity) {
+                ((LaunchActivity) getParentActivity()).checkAppUpdate(true, null);
             }
+        });
+        versionView.setOnLongClickListener(v -> {
             openDebugMenu();
+            return true;
         });
 
         navigationBar = new View(context);
