@@ -149,9 +149,11 @@ Dekogram is a private, clean fork of the official Telegram Android client (`DrKL
 ## Cloud Build Protocol (GitHub Actions)
 
 > **Build Policy**: Always build the app using GitHub Actions (never build locally, avoiding heavy C++/CMake resource load and local toolchain divergence).
-> **Trigger Conditions**: Only trigger or start a build when:
-> 1. The user explicitly requests a new build.
-> 2. The last CI build failed and fixes were applied.
+> **Push Policy (Do NOT Push on Every Commit)**: Pushing commits to `origin main` immediately triggers the heavy GitHub Actions build pipeline. Keep changes and commits local during development and debugging. Do NOT push to `origin` after every single minor edit.
+> **Trigger Conditions**: Only push to `origin main` to trigger a build when:
+> 1. The user explicitly requests a new build or APK release.
+> 2. The previous CI build failed and fixes have been verified and applied.
+> *(Tip: If you ever need to push commits to GitHub without triggering a build run, include `[skip ci]` in the commit message).*
 
 ### How to Build via GitHub:
 * **Trigger on Push**: Pushing commits to `main` (`git push origin main`) automatically kicks off `.github/workflows/build-apk.yml`.
