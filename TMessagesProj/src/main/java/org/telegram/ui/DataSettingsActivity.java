@@ -74,6 +74,7 @@ public class DataSettingsActivity extends BaseFragment {
     private int mobileRow;
     private int roamingRow;
     private int wifiRow;
+    private int videoDownloadNamingRow;
     private int storageNumRow;
     @Keep
     private int resetDownloadRow = -1;
@@ -147,6 +148,7 @@ public class DataSettingsActivity extends BaseFragment {
         mobileRow = rowCount++;
         wifiRow = rowCount++;
         roamingRow = rowCount++;
+        videoDownloadNamingRow = rowCount++;
         DownloadController dc = getDownloadController();
         boolean isDefault = !(
             !dc.lowPreset.equals(dc.getCurrentRoamingPreset()) || dc.lowPreset.isEnabled() != dc.roamingPreset.enabled ||
@@ -157,10 +159,10 @@ public class DataSettingsActivity extends BaseFragment {
         resetDownloadRow = isDefault ? -1 : rowCount++;
         if (listAdapter != null && !fullNotify) {
             if (wasResetDownloadRow < 0 && resetDownloadRow >= 0) {
-                listAdapter.notifyItemChanged(roamingRow);
+                listAdapter.notifyItemChanged(videoDownloadNamingRow);
                 listAdapter.notifyItemInserted(resetDownloadRow);
             } else if (wasResetDownloadRow >= 0 && resetDownloadRow < 0) {
-                listAdapter.notifyItemChanged(roamingRow);
+                listAdapter.notifyItemChanged(videoDownloadNamingRow);
                 listAdapter.notifyItemRemoved(wasResetDownloadRow);
             } else {
                 fullNotify = true;
@@ -476,6 +478,20 @@ public class DataSettingsActivity extends BaseFragment {
                         });
                 setVisibleDialog(dlg);
                 dlg.show();
+            } else if (position == videoDownloadNamingRow) {
+                int selected = org.telegram.messenger.dekogram.DekogramConfig.getVideoNamingMode();
+                Dialog dlg = AlertsCreator.createSingleChoiceDialog(getParentActivity(), new String[]{
+                                "File Name (Default)",
+                                "File ID",
+                                "File ID + File Name"},
+                        "Video Download Naming", selected, (dialog, which) -> {
+                            org.telegram.messenger.dekogram.DekogramConfig.setVideoNamingMode(which);
+                            if (listAdapter != null) {
+                                listAdapter.notifyItemChanged(position);
+                            }
+                        });
+                setVisibleDialog(dlg);
+                dlg.show();
             } else if (position == dataUsageRow) {
                 presentFragment(new DataUsage2Activity());
             } else if (position == storageNumRow) {
@@ -726,6 +742,18 @@ public class DataSettingsActivity extends BaseFragment {
                     } else if (position == clearDraftsRow) {
                         textCell.setIcon(0);
                         textCell.setText(LocaleController.getString(R.string.PrivacyDeleteCloudDrafts), false);
+                    } else if (position == videoDownloadNamingRow) {
+                        textCell.setIcon(0);
+                        String value;
+                        int mode = org.telegram.messenger.dekogram.DekogramConfig.getVideoNamingMode();
+                        if (mode == org.telegram.messenger.dekogram.DekogramConfig.VIDEO_NAMING_FILE_ID) {
+                            value = "File ID";
+                        } else if (mode == org.telegram.messenger.dekogram.DekogramConfig.VIDEO_NAMING_FILE_ID_AND_NAME) {
+                            value = "File ID + File Name";
+                        } else {
+                            value = "File Name (Default)";
+                        }
+                        textCell.setTextAndValue("Video Download Naming", value, false, resetDownloadRow >= 0);
                     }
                     break;
                 }
@@ -804,7 +832,7 @@ public class DataSettingsActivity extends BaseFragment {
                         text = LocaleController.getString(R.string.WhenRoaming);
                         enabled = DownloadController.getInstance(currentAccount).roamingPreset.enabled;
                         preset = DownloadController.getInstance(currentAccount).getCurrentRoamingPreset();
-                        divider = resetDownloadRow >= 0;
+                        divider = true;
                     }
                     boolean checked;
                     if (preset != null) {
@@ -883,7 +911,7 @@ public class DataSettingsActivity extends BaseFragment {
         }
 
         public boolean isRowEnabled(int position) {
-            return position == mobileRow || position == roamingRow || position == wifiRow || position == storageUsageRow || position == useLessDataForCallsRow || position == dataUsageRow || position == proxyRow || position == clearDraftsRow ||
+            return position == mobileRow || position == roamingRow || position == wifiRow || position == videoDownloadNamingRow || position == storageUsageRow || position == useLessDataForCallsRow || position == dataUsageRow || position == proxyRow || position == clearDraftsRow ||
                     position == enableCacheStreamRow || position == enableStreamRow || position == enableAllStreamRow || position == enableMkvRow || position == quickRepliesRow || position == autoplayVideoRow || position == autoplayGifsRow ||
                     position == storageNumRow || position == saveToGalleryGroupsRow || position == saveToGalleryPeerRow || position == saveToGalleryChannelsRow || position == resetDownloadRow;
         }

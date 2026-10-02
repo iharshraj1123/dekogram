@@ -6732,10 +6732,7 @@ public class MessagesController extends BaseController implements NotificationCe
     }
 
     public boolean isUserNoForwards(TLRPC.UserFull userFull) {
-        if (org.telegram.messenger.dekogram.DekogramConfig.BYPASS_RESTRICTED_CONTENT) {
-            return false;
-        }
-        return userFull != null && userFull.noforwards;
+        return false;
     }
 
     public TLRPC.User getUser(Long id) {

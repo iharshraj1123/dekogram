@@ -29,4 +29,17 @@ public class DekogramConfig {
 
     // In-App Updater
     public static final boolean GITHUB_UPDATES_ENABLED = true;
+
+    // Video Download Naming Formats
+    public static final int VIDEO_NAMING_FILE_NAME = 0; // File name (default)
+    public static final int VIDEO_NAMING_FILE_ID = 1;   // File ID
+    public static final int VIDEO_NAMING_FILE_ID_AND_NAME = 2; // File ID + File name
+
+    public static int getVideoNamingMode() {
+        return org.telegram.messenger.MessagesController.getGlobalMainSettings().getInt("dekogram_video_naming", VIDEO_NAMING_FILE_NAME);
+    }
+
+    public static void setVideoNamingMode(int mode) {
+        org.telegram.messenger.MessagesController.getGlobalMainSettings().edit().putInt("dekogram_video_naming", mode).apply();
+    }
 }

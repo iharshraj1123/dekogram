@@ -5515,7 +5515,7 @@ public class MediaController implements AudioManager.OnAudioFocusChangeListener,
                         } else if (type == 1) {
                             File vDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "Dekogram" + File.separator + "Videos");
                             vDir.mkdirs();
-                            destFile = new File(vDir, resolveSaveFileName(vDir, name, ext, 1, postDateSeconds));
+                            destFile = new File(vDir, resolveSaveFileName(vDir, sourceFile, name, ext, 1, postDateSeconds));
                         } else {
                             File dir;
                             if (type == 2) {
@@ -5793,6 +5793,10 @@ public class MediaController implements AudioManager.OnAudioFocusChangeListener,
         return org.telegram.messenger.dekogram.DekogramMedia.resolveSaveFileName(targetDir, name, extension, type, postDateSeconds);
     }
 
+    public static String resolveSaveFileName(File targetDir, File sourceFile, String name, String extension, int type, long postDateSeconds) {
+        return org.telegram.messenger.dekogram.DekogramMedia.resolveSaveFileName(targetDir, sourceFile, name, extension, type, postDateSeconds);
+    }
+
     private static Uri saveFileInternal(int type, File sourceFile, String filename) {
         return saveFileInternal(type, sourceFile, filename, 0);
     }
@@ -5830,7 +5834,7 @@ public class MediaController implements AudioManager.OnAudioFocusChangeListener,
             } else if (selectedType == 1) {
                 dirDest = new File(Environment.DIRECTORY_DOWNLOADS, "Dekogram" + File.separator + "Videos");
                 File publicDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "Dekogram" + File.separator + "Videos");
-                filename = resolveSaveFileName(publicDir, filename, extension, 1, postDateSeconds);
+                filename = resolveSaveFileName(publicDir, sourceFile, filename, extension, 1, postDateSeconds);
                 uriToInsert = MediaStore.Downloads.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY);
                 contentValues.put(MediaStore.MediaColumns.RELATIVE_PATH, dirDest + File.separator);
                 contentValues.put(MediaStore.Downloads.DISPLAY_NAME, filename);

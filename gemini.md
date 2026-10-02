@@ -120,7 +120,12 @@ Dekogram is a private, clean fork of the official Telegram Android client (`DrKL
 * **`LaunchActivity.java`**: Enabled custom update checks on startup while keeping official Telegram update pings blocked; added instant feedback bulletin for manual checks when up to date.
 * **`SettingsActivity.java`**: Configured single tap on Settings version text to instantly trigger `checkAppUpdate(true, null)` with UI bulletin feedback; long press preserved for Debug Menu.
 * **`.github/workflows/build-apk.yml`**: Configured 100% zero-touch autonomous pipeline running every 6 hours in GitHub cloud. Queries official `DrKLO/Telegram` tags, verifies ancestry, safely auto-merges new tags, builds the APK, publishes the release asset, and commits upstream changes to `main` without human intervention. In case of merge conflict, aborts safely (`git merge --abort`) and files an alert issue.
-* **Git Remotes**: Configured `upstream` remote pointing to `https://github.com/DrKLO/Telegram.git` for tag synchronization.
+### 22. Configurable Video Download Naming Formats
+* **`DekogramConfig.java`**: Added naming format constants (`VIDEO_NAMING_FILE_NAME = 0`, `VIDEO_NAMING_FILE_ID = 1`, `VIDEO_NAMING_FILE_ID_AND_NAME = 2`) and preference accessors (`getVideoNamingMode()`, `setVideoNamingMode(int)`).
+* **`DekogramMedia.java`**: Added `extractFileId(File sourceFile)` parsing underlying document IDs from cache file names (e.g. `2_538472918471928374.mp4` -> `538472918471928374`). Updated `resolveSaveFileName()` to format filenames according to chosen mode and resolve conflicts with a clean 5-digit suffix.
+* **`MediaController.java`**: Forwarded `sourceFile` to `resolveSaveFileName()` during both public scoped storage (`MediaStore`) and legacy downloads saving.
+* **`DataSettingsActivity.java`**: Added "Video Download Naming" row with single-choice selection dialog under Automatic Media Download settings.
+* **`MessagesController.java`**: Fixed `isUserNoForwards(TLRPC.UserFull)` CI compile error by removing invalid `userFull.noforwards` reference and returning `false`.
 
 ---
 
@@ -134,6 +139,8 @@ Dekogram is a private, clean fork of the official Telegram Android client (`DrKL
 * **Pre-Push Code Verification**:
   * Verify all referenced symbols, classes, and method signatures exist across all targets (`TMessagesProj` & `TMessagesProj_AppStandalone`).
   * Ensure nullable checks on message wrappers (`messageObject.messageOwner != null ? ... : ...`).
+* **TLRPC Schema Field Verification**:
+  * Never guess fields on generated TLRPC classes (e.g., `TLRPC.UserFull` does not have `noforwards`, only `noforwards_my_enabled` and `noforwards_peer_enabled`). Always check `TLRPC.java` or `schema.tl` definitions.
 * **Section Maintenance Requirement**:
   * Whenever any CI build failure occurs, diagnose the root cause, fix it, and immediately record the concise preventive rule in this section for future assistants.
 
