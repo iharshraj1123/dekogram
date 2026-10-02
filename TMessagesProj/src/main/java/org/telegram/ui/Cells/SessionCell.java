@@ -248,7 +248,7 @@ public class SessionCell extends FrameLayout {
             detailExTextView.setText(spannableStringBuilder);
 
             stringBuilder = new StringBuilder();
-            stringBuilder.append(session.app_name);
+            stringBuilder.append(org.telegram.messenger.dekogram.DekogramUI.formatSessionAppName(session.app_name, session.api_id));
             stringBuilder.append(" ").append(session.app_version);
 
             detailTextView.setText(stringBuilder);

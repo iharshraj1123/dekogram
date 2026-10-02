@@ -31,4 +31,11 @@ public class DekogramUI {
         builder.show();
         return true;
     }
+
+    public static String formatSessionAppName(String originalAppName, int apiId) {
+        if ("Nekogram".equalsIgnoreCase(originalAppName) || (apiId > 0 && apiId == org.telegram.messenger.BuildVars.APP_ID)) {
+            return DekogramConfig.APP_NAME;
+        }
+        return originalAppName != null ? originalAppName : "";
+    }
 }

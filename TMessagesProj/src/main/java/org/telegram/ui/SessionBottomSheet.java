@@ -110,7 +110,7 @@ public class SessionBottomSheet extends BottomSheet {
 
         ItemView applicationItemView = new ItemView(context, false);
         stringBuilder = new StringBuilder();
-        stringBuilder.append(session.app_name);
+        stringBuilder.append(org.telegram.messenger.dekogram.DekogramUI.formatSessionAppName(session.app_name, session.api_id));
         stringBuilder.append(" ").append(session.app_version);
         applicationItemView.valueText.setText(stringBuilder);
         Drawable drawable = ContextCompat.getDrawable(context, R.drawable.menu_devices).mutate();
