@@ -138,9 +138,14 @@ Dekogram is a private, clean fork of the official Telegram Android client (`DrKL
   * Verify imports at the top of edited files before adding code, or use Fully Qualified Class Names (FQCN).
 * **Pre-Push Code Verification**:
   * Verify all referenced symbols, classes, and method signatures exist across all targets (`TMessagesProj` & `TMessagesProj_AppStandalone`).
-  * Ensure nullable checks on message wrappers (`messageObject.messageOwner != null ? ... : ...`).
-* **TLRPC Schema Field Verification**:
-  * Never guess fields on generated TLRPC classes (e.g., `TLRPC.UserFull` does not have `noforwards`, only `noforwards_my_enabled` and `noforwards_peer_enabled`). Always check `TLRPC.java` or `schema.tl` definitions.
+* **1-Line Modular Delegation (Zero-Conflict Pattern)**:
+  * Never write multi-line logic in upstream files (`ChatActivity.java`, `PhotoViewer.java`, etc.).
+  * Always route logic into `org.telegram.messenger.dekogram.*` using a 1-line hook (e.g., `if (DekogramSecurity.shouldBypassRestriction(...)) return;`). Keeps git merge conflict probability <5% during upstream updates.
+* **Volatile TLRPC Field Isolation**:
+  * Never reference volatile or undocumented fields directly on generated TLRPC classes (e.g., `TLRPC.UserFull` does not have `noforwards`, only `noforwards_my_enabled` and `noforwards_peer_enabled`). Always check `TLRPC.java` or `schema.tl` definitions.
+  * Prefer returning safe defaults (`false`) or isolating TLRPC checks inside `Dekogram*` helpers so upstream schema renames never break compilation.
+* **Autonomous Conflict Safety & Issue Alerts**:
+  * The 6-hour cron sync workflow (`build-apk.yml`) automatically aborts (`git merge --abort`) if upstream Telegram changes cannot be cleanly merged, and opens a GitHub issue alerting maintainers. No broken APK is ever built or released on merge conflicts.
 * **Section Maintenance Requirement**:
   * Whenever any CI build failure occurs, diagnose the root cause, fix it, and immediately record the concise preventive rule in this section for future assistants.
 
