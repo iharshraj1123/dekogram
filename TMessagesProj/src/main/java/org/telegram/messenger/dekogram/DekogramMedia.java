@@ -128,4 +128,55 @@ public class DekogramMedia {
     public static boolean shouldDeleteInternalCache() {
         return DekogramConfig.SINGLE_FILE_STORAGE;
     }
+
+    public static void handleDownloadCompleted(Object parentObject, org.telegram.tgnet.TLRPC.Document document, File finalFile, org.telegram.messenger.FileLoader fileLoader, org.telegram.messenger.DownloadController downloadController) {
+        if (!(parentObject instanceof org.telegram.messenger.MessageObject)) {
+            return;
+        }
+        org.telegram.messenger.MessageObject messageObject = (org.telegram.messenger.MessageObject) parentObject;
+        if (document != null && (messageObject.putInDownloadsStore || messageObject.isVideo() || messageObject.isDocument())) {
+            if (downloadController != null) {
+                downloadController.onDownloadComplete(messageObject);
+            }
+            if (!messageObject.isRoundVideo() && !messageObject.isVoice() && !messageObject.isAnyKindOfSticker()) {
+                String fileNameToSave = org.telegram.messenger.FileLoader.getDocumentFileName(document);
+                int mediaType = messageObject.isVideo() ? 1 : (messageObject.isDocument() ? 2 : 0);
+                long postDate = messageObject.messageOwner != null ? messageObject.messageOwner.date : 0;
+                final File origFile = finalFile;
+                org.telegram.messenger.MediaController.saveFile(finalFile.getAbsolutePath(), org.telegram.messenger.ApplicationLoader.applicationContext, mediaType, fileNameToSave, document.mime_type, uri -> {
+                    if (uri != null) {
+                        String savedPath = org.telegram.messenger.AndroidUtilities.getPath(uri);
+                        if (TextUtils.isEmpty(savedPath) && "file".equalsIgnoreCase(uri.getScheme())) {
+                            savedPath = uri.getPath();
+                        }
+                        if (TextUtils.isEmpty(savedPath)) {
+                            File dir = mediaType == 1
+                                    ? new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), DekogramConfig.DIR_NAME + File.separator + "Videos")
+                                    : new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), DekogramConfig.DIR_NAME);
+                            File candidate = new File(dir, fileNameToSave);
+                            if (candidate.exists() && candidate.length() > 0) {
+                                savedPath = candidate.getAbsolutePath();
+                            }
+                        }
+                        if (!TextUtils.isEmpty(savedPath)) {
+                            File savedFile = new File(savedPath);
+                            if (savedFile.exists() && savedFile.length() > 0) {
+                                int dirType = mediaType == 1 ? org.telegram.messenger.FileLoader.MEDIA_DIR_VIDEO : org.telegram.messenger.FileLoader.MEDIA_DIR_DOCUMENT;
+                                if (fileLoader != null) {
+                                    fileLoader.getFileDatabase().putPath(document.id, document.dc_id, dirType, 0, savedPath);
+                                }
+                                document.localPath = savedPath;
+                                if (origFile != null && origFile.exists() && !origFile.getAbsolutePath().equals(savedPath)) {
+                                    origFile.delete();
+                                }
+                            }
+                        }
+                    }
+                }, false, postDate);
+            }
+        } else if (messageObject.isPhoto() && messageObject.putInDownloadsStore) {
+            long postDate = messageObject.messageOwner != null ? messageObject.messageOwner.date : 0;
+            org.telegram.messenger.MediaController.saveFile(finalFile.getAbsolutePath(), org.telegram.messenger.ApplicationLoader.applicationContext, 0, null, "image/jpeg", null, false, postDate);
+        }
+    }
 }

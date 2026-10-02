@@ -40,4 +40,11 @@ public class DekogramSecurity {
         }
         return original;
     }
+
+    public static void sanitizeCodeSettings(org.telegram.tgnet.TLRPC.TL_codeSettings settings) {
+        if (settings != null) {
+            settings.allow_flashcall = false;
+            settings.allow_missed_call = false;
+        }
+    }
 }

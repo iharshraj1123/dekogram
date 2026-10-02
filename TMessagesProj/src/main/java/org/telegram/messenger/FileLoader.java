@@ -1014,49 +1014,7 @@ public class FileLoader extends BaseController {
                 if (fileMeta != null) {
                     getFileLoader().getFileDatabase().saveFileDialogId(finalFile, fileMeta);
                 }
-                if (parentObject instanceof MessageObject) {
-                    MessageObject messageObject = (MessageObject) parentObject;
-                    if (document != null && (messageObject.putInDownloadsStore || messageObject.isVideo() || messageObject.isDocument())) {
-                        getDownloadController().onDownloadComplete(messageObject);
-                        if (!messageObject.isRoundVideo() && !messageObject.isVoice() && !messageObject.isAnyKindOfSticker()) {
-                            String fileNameToSave = getDocumentFileName(document);
-                            int mediaType = messageObject.isVideo() ? 1 : (messageObject.isDocument() ? 2 : 0);
-                            long postDate = messageObject.messageOwner != null ? messageObject.messageOwner.date : 0;
-                            final File origFile = finalFile;
-                            MediaController.saveFile(finalFile.getAbsolutePath(), ApplicationLoader.applicationContext, mediaType, fileNameToSave, document.mime_type, uri -> {
-                                if (uri != null) {
-                                    String savedPath = AndroidUtilities.getPath(uri);
-                                    if (TextUtils.isEmpty(savedPath) && "file".equalsIgnoreCase(uri.getScheme())) {
-                                        savedPath = uri.getPath();
-                                    }
-                                    if (TextUtils.isEmpty(savedPath)) {
-                                        File dir = mediaType == 1
-                                                ? new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "Dekogram" + File.separator + "Videos")
-                                                : new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "Dekogram");
-                                        File candidate = new File(dir, fileNameToSave);
-                                        if (candidate.exists() && candidate.length() > 0) {
-                                            savedPath = candidate.getAbsolutePath();
-                                        }
-                                    }
-                                    if (!TextUtils.isEmpty(savedPath)) {
-                                        File savedFile = new File(savedPath);
-                                        if (savedFile.exists() && savedFile.length() > 0) {
-                                            int dirType = mediaType == 1 ? MEDIA_DIR_VIDEO : MEDIA_DIR_DOCUMENT;
-                                            getFileLoader().getFileDatabase().putPath(document.id, document.dc_id, dirType, 0, savedPath);
-                                            document.localPath = savedPath;
-                                            if (origFile != null && origFile.exists() && !origFile.getAbsolutePath().equals(savedPath)) {
-                                                origFile.delete();
-                                            }
-                                        }
-                                    }
-                                }
-                            }, false, postDate);
-                        }
-                    } else if (messageObject.isPhoto() && messageObject.putInDownloadsStore) {
-                        long postDate = messageObject.messageOwner != null ? messageObject.messageOwner.date : 0;
-                        MediaController.saveFile(finalFile.getAbsolutePath(), ApplicationLoader.applicationContext, 0, null, "image/jpeg", null, false, postDate);
-                    }
-                }
+                org.telegram.messenger.dekogram.DekogramMedia.handleDownloadCompleted(parentObject, document, finalFile, getFileLoader(), getDownloadController());
 
                 if (!operation.isPreloadVideoOperation()) {
                     loadOperationPathsUI.remove(fileName);

@@ -112,7 +112,7 @@ Dekogram is a private, clean fork of the official Telegram Android client (`DrKL
 * **`DekogramSecurity.java`**: Centralized restriction bypass methods (`isChatNoForwards`, `isPeerNoForwards`, `isUserNoForwards`, `filterNoForwards`, `shouldClearFlagSecure`, `isSecuredNow`).
 * **`DekogramMedia.java`**: Centralized storage paths and filename conflict resolution (`resolveSaveFileName`).
 * **`DekogramUI.java`**: Centralized UI confirmations (`shouldHideStories`, `showStickerConfirmAlert`).
-* **`MessagesController.java`, `PhotoViewer.java`, `FlagSecureReason.java`, `UserConfig.java`, `ChatActivity.java`, `DialogsActivity.java`, `ChatActivityEnterView.java`**: Converted inline patches into 1-line hook calls, reducing upstream git merge conflict risk by >90%.
+* **`MessagesController.java`, `PhotoViewer.java`, `FlagSecureReason.java`, `UserConfig.java`, `ChatActivity.java`, `DialogsActivity.java`, `ChatActivityEnterView.java`, `FileLoader.java`, `LoginActivity.java`**: Converted inline patches into 1-line hook calls (`DekogramMedia.handleDownloadCompleted`, `DekogramSecurity.sanitizeCodeSettings`), reducing upstream git merge conflict risk by >95%.
 
 ### 21. Native In-App GitHub Releases Updater & Zero-Touch Autonomous Sync
 * **`DekogramUpdater.java`**: Asynchronously queries `https://api.github.com/repos/iharshraj1123/dekogram/releases/latest`, parses release metadata, streams `Dekogram.apk` with dialog download progress, and launches package installation via `FileProvider` (`org.dekogram.messenger.provider`).
@@ -155,6 +155,7 @@ Dekogram is a private, clean fork of the official Telegram Android client (`DrKL
 
 > **Build Policy**: Always build the app using GitHub Actions (never build locally, avoiding heavy C++/CMake resource load and local toolchain divergence).
 > **Push Policy (Do NOT Push on Every Commit)**: Pushing commits to `origin main` immediately triggers the heavy GitHub Actions build pipeline. Keep changes and commits local during development and debugging. Do NOT push to `origin` after every single minor edit.
+> **Cancel Stale Builds Before / On Push**: Whenever pushing to `origin` with the intent to trigger a build, cancel any existing or in-progress workflow runs first. `.github/workflows/build-apk.yml` configures `concurrency: { group: ..., cancel-in-progress: true }` to automatically terminate superseded runs, but verify and abort via CLI if necessary (`gh run cancel <id>`).
 > **Trigger Conditions**: Only push to `origin main` to trigger a build when:
 > 1. The user explicitly requests a new build or APK release.
 > 2. The previous CI build failed and fixes have been verified and applied.
