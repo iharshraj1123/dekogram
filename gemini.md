@@ -111,6 +111,21 @@ Dekogram is a private, clean fork of the official Telegram Android client (`DrKL
 
 ---
 
+## Build Error Prevention & Maintenance Standards
+
+> **Instruction for Developers & AI Assistants**: Always adhere to this checklist before pushing changes to prevent CI build failures:
+
+* **Explicit Imports & FQCN Verification**:
+  * Never assume Android SDK or Java classes (`Environment`, `Uri`, `Context`, etc.) are imported in a file.
+  * Verify imports at the top of edited files before adding code, or use Fully Qualified Class Names (FQCN).
+* **Pre-Push Code Verification**:
+  * Verify all referenced symbols, classes, and method signatures exist across all targets (`TMessagesProj` & `TMessagesProj_AppStandalone`).
+  * Ensure nullable checks on message wrappers (`messageObject.messageOwner != null ? ... : ...`).
+* **Section Maintenance Requirement**:
+  * Whenever any CI build failure occurs, diagnose the root cause, fix it, and immediately record the concise preventive rule in this section for future assistants.
+
+---
+
 ## Installation & Deployment
 
 ### 1. Direct Download on Phone (No ADB Needed)
