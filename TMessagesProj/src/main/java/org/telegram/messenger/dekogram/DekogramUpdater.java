@@ -168,6 +168,7 @@ public class DekogramUpdater {
             // Find APK asset
             String downloadUrl = null;
             long assetSize = 0;
+            long assetUpdatedAt = 0;
             JSONArray assets = json.optJSONArray("assets");
             if (assets != null) {
                 for (int i = 0; i < assets.length(); i++) {
@@ -176,6 +177,18 @@ public class DekogramUpdater {
                     if (assetName.toLowerCase().endsWith(".apk")) {
                         downloadUrl = asset.optString("browser_download_url", null);
                         assetSize = asset.optLong("size", 0);
+                        String assetUpdatedAtStr = asset.optString("updated_at", "");
+                        if (!TextUtils.isEmpty(assetUpdatedAtStr)) {
+                            try {
+                                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US);
+                                sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+                                Date d = sdf.parse(assetUpdatedAtStr);
+                                if (d != null) {
+                                    assetUpdatedAt = d.getTime();
+                                }
+                            } catch (Exception ignore) {
+                            }
+                        }
                         break;
                     }
                 }
@@ -185,6 +198,8 @@ public class DekogramUpdater {
                 FileLog.e(TAG + ": No APK asset found in latest GitHub release");
                 return null;
             }
+
+            long effectiveReleaseTime = Math.max(publishedAt, assetUpdatedAt);
 
             // Determine if release is newer
             long localInstallTime = 0;
@@ -206,13 +221,13 @@ public class DekogramUpdater {
                 }
             }
 
-            boolean isNewerRelease = (publishedAt > 0 && publishedAt > localInstallTime + 60000L);
+            boolean isNewerRelease = (effectiveReleaseTime > 0 && effectiveReleaseTime > localInstallTime + 60000L);
 
-            if (hasHigherVersion || isNewerRelease || (force && publishedAt > localInstallTime)) {
+            if (hasHigherVersion || isNewerRelease || (force && effectiveReleaseTime > localInstallTime)) {
                 String displayVersion = !TextUtils.isEmpty(cleanVersion) && !"latest".equalsIgnoreCase(cleanVersion)
                         ? cleanVersion
                         : BuildVars.BUILD_VERSION_STRING;
-                return new DekogramBetaUpdate(displayVersion, localVersionCode + 1, changelog, downloadUrl, assetSize, publishedAt, releaseTitle);
+                return new DekogramBetaUpdate(displayVersion, localVersionCode + 1, changelog, downloadUrl, assetSize, effectiveReleaseTime, releaseTitle);
             }
 
         } catch (Exception e) {
