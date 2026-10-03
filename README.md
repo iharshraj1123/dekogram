@@ -21,6 +21,8 @@
 
 **Dekogram** is an independent, power-user fork of the official Telegram Android app (`DrKLO/Telegram`). It re-engineers Telegram's download engine, media pipeline, and storage architecture to eliminate artificial speed throttling, double-storage caching waste, forced cloud auto-downloads, and content-saving restrictions—all while preserving full official MTProto compatibility, instant push notifications, and secret chat encryption.
 
+Dekogram removes restriction of private groups where you can't download media or take screenshots. 
+
 ---
 
 ## Key Features

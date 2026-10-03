@@ -139,6 +139,11 @@ Dekogram is a private, clean fork of the official Telegram Android client (`DrKL
 * **`FileLoadOperation.java`**: Delegated chunk and parallelism calculation in `updateParams()` to `DekogramMedia.applyDownloadBoost()` via 1-line hook while safely maintaining fallback on `forceSmallChunk`.
 * **`DataSettingsActivity.java`**: Added "Download Speed Boost" preference row with single-choice selection dialog under Automatic Media Download settings.
 
+### 25. Main Action Bar Branding & Idle Download Icon Freeze
+* **`DownloadProgressIcon.java`**: Set `autoRepeat = 0` and disabled `allowStartLottieAnimation` when idle so the download arrow rests statically on frame 0 without an empty progress track, activating looping animation and progress bar only during active file downloads.
+* **`DialogsActivity.java`, `IntroActivity.java`**: Replaced the hardcoded cursive "Telegram" vector `ImageSpan` (`telegram_logo_2`) with native "Dekogram" title text rendered in the action bar and intro screen.
+* **`strings.xml`**: Updated `Page1Title`, `NotificationHiddenName`, and `NotificationHiddenChatName` to `Dekogram`.
+
 ---
 
 ## Build Error Prevention & Maintenance Standards

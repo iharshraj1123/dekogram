@@ -51,8 +51,9 @@ public class DownloadProgressIcon extends View implements NotificationCenter.Not
         downloadImageReceiver.setImageBitmap(downloadDrawable);
         downloadCompleteImageReceiver.setImageBitmap(downloadCompleteDrawable);
 
-        downloadImageReceiver.setAutoRepeat(1);
-        downloadDrawable.setAutoRepeat(1);
+        downloadImageReceiver.setAutoRepeat(0);
+        downloadImageReceiver.setAllowStartLottieAnimation(false);
+        downloadDrawable.setAutoRepeat(0);
         downloadDrawable.setCurrentFrame(0, false);
     }
 
@@ -123,6 +124,8 @@ public class DownloadProgressIcon extends View implements NotificationCenter.Not
 
         if (progress == 1f && !showCompletedIcon) {
             if (downloadDrawable.getCurrentFrame() == 0) {
+                downloadDrawable.stop();
+                downloadDrawable.setAutoRepeat(0);
                 downloadCompleteDrawable.setCurrentFrame(0, false);
                 downloadCompleteDrawable.start();
                 showCompletedIcon = true;
@@ -141,6 +144,10 @@ public class DownloadProgressIcon extends View implements NotificationCenter.Not
         NotificationCenter.getInstance(currentAccount).addObserver(this, NotificationCenter.onDownloadingFilesChanged);
         downloadImageReceiver.onAttachedToWindow();
         downloadCompleteImageReceiver.onAttachedToWindow();
+        if (currentListeners.isEmpty() && !DownloadController.getInstance(currentAccount).hasUnviewedDownloads()) {
+            downloadDrawable.stop();
+            downloadDrawable.setCurrentFrame(0, false);
+        }
     }
 
     @Override
@@ -181,8 +188,15 @@ public class DownloadProgressIcon extends View implements NotificationCenter.Not
                 progress = 0;
                 currentProgress = 0;
                 showCompletedIcon = false;
-                downloadDrawable.setCurrentFrame(0, false);
+                downloadDrawable.setAutoRepeat(0);
                 downloadDrawable.stop();
+                downloadDrawable.setCurrentFrame(0, false);
+            }
+        } else {
+            showCompletedIcon = false;
+            downloadDrawable.setAutoRepeat(1);
+            if (!downloadDrawable.isRunning()) {
+                downloadDrawable.start();
             }
         }
     }
@@ -196,15 +210,26 @@ public class DownloadProgressIcon extends View implements NotificationCenter.Not
             downloaded += currentListeners.get(i).downloaded;
         }
         if (total == 0) {
-            if (DownloadController.getInstance(currentAccount).hasUnviewedDownloads()) {
-                progress = 1f;
+            if (currentListeners.isEmpty()) {
+                if (DownloadController.getInstance(currentAccount).hasUnviewedDownloads()) {
+                    progress = 1f;
+                } else {
+                    progress = 0f;
+                    showCompletedIcon = false;
+                    downloadDrawable.setAutoRepeat(0);
+                    downloadDrawable.stop();
+                    downloadDrawable.setCurrentFrame(0, false);
+                }
             } else {
                 progress = 0f;
                 showCompletedIcon = false;
-                downloadDrawable.setCurrentFrame(0, false);
-                downloadDrawable.stop();
+                downloadDrawable.setAutoRepeat(1);
+                if (!downloadDrawable.isRunning()) {
+                    downloadDrawable.start();
+                }
             }
         } else {
+            downloadDrawable.setAutoRepeat(1);
             if (!downloadDrawable.isRunning()) {
                 downloadDrawable.start();
             }
