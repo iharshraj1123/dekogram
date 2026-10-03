@@ -5,6 +5,7 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
+import android.graphics.drawable.Drawable;
 import android.view.View;
 
 import org.telegram.messenger.AndroidUtilities;
@@ -32,6 +33,7 @@ public class DownloadProgressIcon extends View implements NotificationCenter.Not
 
     ImageReceiver downloadImageReceiver = new ImageReceiver(this);
     ImageReceiver downloadCompleteImageReceiver = new ImageReceiver(this);
+    Drawable idleDownloadDrawable;
     RLottieDrawable downloadDrawable;
     RLottieDrawable downloadCompleteDrawable;
     boolean showCompletedIcon;
@@ -45,19 +47,22 @@ public class DownloadProgressIcon extends View implements NotificationCenter.Not
         downloadImageReceiver.ignoreNotifications = true;
         downloadCompleteImageReceiver.ignoreNotifications = true;
 
+        idleDownloadDrawable = context.getResources().getDrawable(R.drawable.msg_download).mutate();
+
         downloadDrawable = new RLottieDrawable(R.raw.download_progress, AndroidUtilities.dp(28), AndroidUtilities.dp(28), true, null);
         downloadCompleteDrawable = new RLottieDrawable(R.raw.download_finish, AndroidUtilities.dp(28), AndroidUtilities.dp(28), true, null);
 
         downloadImageReceiver.setImageBitmap(downloadDrawable);
         downloadCompleteImageReceiver.setImageBitmap(downloadCompleteDrawable);
 
-        downloadImageReceiver.setAutoRepeat(0);
-        downloadImageReceiver.setAllowStartLottieAnimation(false);
-        downloadDrawable.setAutoRepeat(0);
-        downloadDrawable.setCurrentFrame(0, false);
+        downloadImageReceiver.setAutoRepeat(1);
+        downloadDrawable.setAutoRepeat(1);
     }
 
     public void updateColors() {
+        if (idleDownloadDrawable != null) {
+            idleDownloadDrawable.setColorFilter(new PorterDuffColorFilter(Theme.getColor(Theme.key_actionBarDefaultIcon), PorterDuff.Mode.SRC_IN));
+        }
         downloadDrawable.setColorFilter(new PorterDuffColorFilter(Theme.getColor(Theme.key_actionBarDefaultIcon), PorterDuff.Mode.SRC_IN));
         downloadCompleteDrawable.setColorFilter(new PorterDuffColorFilter(Theme.getColor(Theme.key_actionBarDefaultIcon), PorterDuff.Mode.SRC));
         invalidate();
@@ -69,6 +74,12 @@ public class DownloadProgressIcon extends View implements NotificationCenter.Not
         int padding = AndroidUtilities.dp(15);
         downloadImageReceiver.setImageCoords(padding, padding, getMeasuredWidth() - padding * 2, getMeasuredHeight() - padding * 2);
         downloadCompleteImageReceiver.setImageCoords(padding, padding, getMeasuredWidth() - padding * 2, getMeasuredHeight() - padding * 2);
+        if (idleDownloadDrawable != null) {
+            int iconSize = AndroidUtilities.dp(24);
+            int l = (getMeasuredWidth() - iconSize) / 2;
+            int t = (getMeasuredHeight() - iconSize) / 2;
+            idleDownloadDrawable.setBounds(l, t, l + iconSize, t + iconSize);
+        }
     }
 
     @Override
@@ -84,6 +95,9 @@ public class DownloadProgressIcon extends View implements NotificationCenter.Not
             paint2.setColor(Theme.getColor(Theme.key_actionBarDefaultIcon));
             downloadImageReceiver.setColorFilter(new PorterDuffColorFilter(Theme.getColor(Theme.key_actionBarDefaultIcon), PorterDuff.Mode.SRC_IN));
             downloadCompleteImageReceiver.setColorFilter(new PorterDuffColorFilter(Theme.getColor(Theme.key_actionBarDefaultIcon), PorterDuff.Mode.SRC_IN));
+            if (idleDownloadDrawable != null) {
+                idleDownloadDrawable.setColorFilter(new PorterDuffColorFilter(Theme.getColor(Theme.key_actionBarDefaultIcon), PorterDuff.Mode.SRC_IN));
+            }
             paint2.setAlpha(100);
         }
 
@@ -111,27 +125,33 @@ public class DownloadProgressIcon extends View implements NotificationCenter.Not
             canvas.drawRoundRect(AndroidUtilities.rectTmp, r, r, paint);
         }
 
-        canvas.save();
-        canvas.clipRect(0, 0, getMeasuredWidth(), cy - r);
         if (progress != 1f) {
             showCompletedIcon = false;
         }
         if (showCompletedIcon) {
+            canvas.save();
+            canvas.clipRect(0, 0, getMeasuredWidth(), cy - r);
             downloadCompleteImageReceiver.draw(canvas);
-        } else {
+            canvas.restore();
+        } else if (currentListeners.size() > 0) {
+            canvas.save();
+            canvas.clipRect(0, 0, getMeasuredWidth(), cy - r);
             downloadImageReceiver.draw(canvas);
+            canvas.restore();
+        } else {
+            if (idleDownloadDrawable != null) {
+                idleDownloadDrawable.draw(canvas);
+            }
         }
 
         if (progress == 1f && !showCompletedIcon) {
             if (downloadDrawable.getCurrentFrame() == 0) {
                 downloadDrawable.stop();
-                downloadDrawable.setAutoRepeat(0);
                 downloadCompleteDrawable.setCurrentFrame(0, false);
                 downloadCompleteDrawable.start();
                 showCompletedIcon = true;
             }
         }
-        canvas.restore();
         if (getAlpha() != 0) {
             wasDrawn = true;
         }
@@ -144,9 +164,8 @@ public class DownloadProgressIcon extends View implements NotificationCenter.Not
         NotificationCenter.getInstance(currentAccount).addObserver(this, NotificationCenter.onDownloadingFilesChanged);
         downloadImageReceiver.onAttachedToWindow();
         downloadCompleteImageReceiver.onAttachedToWindow();
-        if (currentListeners.isEmpty() && !DownloadController.getInstance(currentAccount).hasUnviewedDownloads()) {
+        if (currentListeners.isEmpty()) {
             downloadDrawable.stop();
-            downloadDrawable.setCurrentFrame(0, false);
         }
     }
 
@@ -188,13 +207,10 @@ public class DownloadProgressIcon extends View implements NotificationCenter.Not
                 progress = 0;
                 currentProgress = 0;
                 showCompletedIcon = false;
-                downloadDrawable.setAutoRepeat(0);
                 downloadDrawable.stop();
-                downloadDrawable.setCurrentFrame(0, false);
             }
         } else {
             showCompletedIcon = false;
-            downloadDrawable.setAutoRepeat(1);
             if (!downloadDrawable.isRunning()) {
                 downloadDrawable.start();
             }
@@ -216,20 +232,16 @@ public class DownloadProgressIcon extends View implements NotificationCenter.Not
                 } else {
                     progress = 0f;
                     showCompletedIcon = false;
-                    downloadDrawable.setAutoRepeat(0);
                     downloadDrawable.stop();
-                    downloadDrawable.setCurrentFrame(0, false);
                 }
             } else {
                 progress = 0f;
                 showCompletedIcon = false;
-                downloadDrawable.setAutoRepeat(1);
                 if (!downloadDrawable.isRunning()) {
                     downloadDrawable.start();
                 }
             }
         } else {
-            downloadDrawable.setAutoRepeat(1);
             if (!downloadDrawable.isRunning()) {
                 downloadDrawable.start();
             }

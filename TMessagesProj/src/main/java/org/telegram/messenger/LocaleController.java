@@ -4442,6 +4442,22 @@ public class LocaleController {
 
     @Nullable
     private String getStringV2(String key, @StringRes int stringRes, String fallback) {
+        if ("AppName".equals(key) || stringRes == R.string.AppName) {
+            return "Dekogram";
+        }
+        if ("AppNameBeta".equals(key) || stringRes == R.string.AppNameBeta) {
+            return "Dekogram Beta";
+        }
+        if ("Page1Title".equals(key) || stringRes == R.string.Page1Title) {
+            return "Dekogram";
+        }
+        if ("NotificationHiddenName".equals(key) || stringRes == R.string.NotificationHiddenName) {
+            return "Dekogram";
+        }
+        if ("NotificationHiddenChatName".equals(key) || stringRes == R.string.NotificationHiddenChatName) {
+            return "Dekogram";
+        }
+
         final Context context = ApplicationLoader.applicationContext;
         String value;
 

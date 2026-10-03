@@ -140,8 +140,9 @@ Dekogram is a private, clean fork of the official Telegram Android client (`DrKL
 * **`DataSettingsActivity.java`**: Added "Download Speed Boost" preference row with single-choice selection dialog under Automatic Media Download settings.
 
 ### 25. Main Action Bar Branding & Idle Download Icon Freeze
-* **`DownloadProgressIcon.java`**: Set `autoRepeat = 0` and disabled `allowStartLottieAnimation` when idle so the download arrow rests statically on frame 0 without an empty progress track, activating looping animation and progress bar only during active file downloads.
-* **`DialogsActivity.java`, `IntroActivity.java`**: Replaced the hardcoded cursive "Telegram" vector `ImageSpan` (`telegram_logo_2`) with native "Dekogram" title text rendered in the action bar and intro screen.
+* **`DownloadProgressIcon.java`**: Dedicated `idleDownloadDrawable` rendering `R.drawable.msg_download` in the header when no files are downloading, preventing RLottie decode blanking when idle while seamlessly switching to animated Lottie download progress when files are downloading.
+* **`DialogsActivity.java`, `IntroActivity.java`**: Replaced the hardcoded cursive "Telegram" vector `ImageSpan` (`telegram_logo_2`) and explicitly set "Dekogram" title text rendered in the action bar and intro screen.
+* **`LocaleController.java`**: Intercepted cloud translation lookup in `getStringV2()` for `AppName`, `AppNameBeta`, `Page1Title`, and `NotificationHidden*` to prevent Telegram's cloud string synchronization from overriding Dekogram branding with "Telegram".
 * **`strings.xml`**: Updated `Page1Title`, `NotificationHiddenName`, and `NotificationHiddenChatName` to `Dekogram`.
 
 ---
