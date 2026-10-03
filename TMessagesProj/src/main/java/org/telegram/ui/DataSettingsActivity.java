@@ -498,7 +498,7 @@ public class DataSettingsActivity extends BaseFragment {
                 int selected = org.telegram.messenger.dekogram.DekogramConfig.getDownloadBoostMode();
                 Dialog dlg = AlertsCreator.createSingleChoiceDialog(getParentActivity(), new String[]{
                                 "Disabled (4 Streams)",
-                                "Fast (8 Parallel Streams)",
+                                "Fast (8 Parallel Streams, Default)",
                                 "Maximum (12 Parallel Streams)"},
                         "Download Speed Boost", selected, (dialog, which) -> {
                             org.telegram.messenger.dekogram.DekogramConfig.setDownloadBoostMode(which);
@@ -776,10 +776,10 @@ public class DataSettingsActivity extends BaseFragment {
                         int mode = org.telegram.messenger.dekogram.DekogramConfig.getDownloadBoostMode();
                         if (mode == org.telegram.messenger.dekogram.DekogramConfig.DOWNLOAD_BOOST_OFF) {
                             value = "Disabled (4 Streams)";
-                        } else if (mode == org.telegram.messenger.dekogram.DekogramConfig.DOWNLOAD_BOOST_FAST) {
-                            value = "Fast (8 Streams)";
-                        } else {
+                        } else if (mode == org.telegram.messenger.dekogram.DekogramConfig.DOWNLOAD_BOOST_MAXIMUM) {
                             value = "Maximum (12 Streams)";
+                        } else {
+                            value = "Fast (8 Streams, Default)";
                         }
                         textCell.setTextAndValue("Download Speed Boost", value, false, resetDownloadRow >= 0);
                     }
