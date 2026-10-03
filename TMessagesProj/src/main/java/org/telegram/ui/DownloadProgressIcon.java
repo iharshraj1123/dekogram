@@ -53,7 +53,7 @@ public class DownloadProgressIcon extends View implements NotificationCenter.Not
 
         downloadImageReceiver.setAutoRepeat(1);
         downloadDrawable.setAutoRepeat(1);
-        downloadDrawable.start();
+        downloadDrawable.setCurrentFrame(0, false);
     }
 
     public void updateColors() {
@@ -102,11 +102,13 @@ public class DownloadProgressIcon extends View implements NotificationCenter.Not
 
         float startPadding = AndroidUtilities.dp(16);
         float width = getMeasuredWidth() - startPadding * 2;
-        AndroidUtilities.rectTmp.set(startPadding, cy - r, getMeasuredWidth() - startPadding, cy + r);
-        canvas.drawRoundRect(AndroidUtilities.rectTmp, r, r, paint2);
+        if (currentListeners.size() > 0 || currentProgress > 0 || showCompletedIcon) {
+            AndroidUtilities.rectTmp.set(startPadding, cy - r, getMeasuredWidth() - startPadding, cy + r);
+            canvas.drawRoundRect(AndroidUtilities.rectTmp, r, r, paint2);
 
-        AndroidUtilities.rectTmp.set(startPadding, cy - r, startPadding + width * currentProgress, cy + r);
-        canvas.drawRoundRect(AndroidUtilities.rectTmp, r, r, paint);
+            AndroidUtilities.rectTmp.set(startPadding, cy - r, startPadding + width * currentProgress, cy + r);
+            canvas.drawRoundRect(AndroidUtilities.rectTmp, r, r, paint);
+        }
 
         canvas.save();
         canvas.clipRect(0, 0, getMeasuredWidth(), cy - r);
@@ -170,7 +172,7 @@ public class DownloadProgressIcon extends View implements NotificationCenter.Not
                 currentListeners.add(progressObserver);
             }
         }
-        if (currentListeners.size() == 0 && !wasDrawn) {
+        if (currentListeners.size() == 0) {
             if (DownloadController.getInstance(currentAccount).hasUnviewedDownloads()) {
                 progress = 1f;
                 currentProgress = 1f;
@@ -179,6 +181,8 @@ public class DownloadProgressIcon extends View implements NotificationCenter.Not
                 progress = 0;
                 currentProgress = 0;
                 showCompletedIcon = false;
+                downloadDrawable.setCurrentFrame(0, false);
+                downloadDrawable.stop();
             }
         }
     }
@@ -192,8 +196,18 @@ public class DownloadProgressIcon extends View implements NotificationCenter.Not
             downloaded += currentListeners.get(i).downloaded;
         }
         if (total == 0) {
-            progress = 1f;
+            if (DownloadController.getInstance(currentAccount).hasUnviewedDownloads()) {
+                progress = 1f;
+            } else {
+                progress = 0f;
+                showCompletedIcon = false;
+                downloadDrawable.setCurrentFrame(0, false);
+                downloadDrawable.stop();
+            }
         } else {
+            if (!downloadDrawable.isRunning()) {
+                downloadDrawable.start();
+            }
             progress = downloaded / (float) total;
         }
         if (progress > 1f) {

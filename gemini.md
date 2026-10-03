@@ -127,9 +127,11 @@ Dekogram is a private, clean fork of the official Telegram Android client (`DrKL
 * **`DataSettingsActivity.java`**: Added "Video Download Naming" row with single-choice selection dialog under Automatic Media Download settings.
 * **`MessagesController.java`**: Fixed `isUserNoForwards(TLRPC.UserFull)` CI compile error by removing invalid `userFull.noforwards` reference and returning `false`.
 
-### 23. Active Sessions & Device Branding
-* **`DekogramUI.java`**: Added `formatSessionAppName()` mapping server-returned API client names (`Nekogram` associated with `APP_ID = 442495`) to `Dekogram`.
-* **`SessionCell.java`, `SessionBottomSheet.java`**: Formatted `session.app_name` with `DekogramUI.formatSessionAppName()`, ensuring "This Device" and active sessions list consistently display "Dekogram".
+### 23. Native Device Identity & Persistent Downloads Header Icon
+* **`SessionCell.java`, `SessionBottomSheet.java`, `DekogramUI.java`**: Reverted cosmetic session name remapping since dynamic API credential injection provides native application branding directly.
+* **`DekogramConfig.java`**: Added `ALWAYS_SHOW_DOWNLOADS_ICON = true` to make the downloads manager header action permanently accessible.
+* **`DialogsActivity.java`**: Kept `downloadsItemVisible = true` when `ALWAYS_SHOW_DOWNLOADS_ICON` is enabled.
+* **`DownloadProgressIcon.java`**: Rendered idle download arrow without an empty progress track when no files are downloading, and cleanly started/stopped animations during active and completed download transitions.
 
 ### 24. High-Speed Download Boost (Parallel Streams & 512KB Chunks)
 * **`DekogramConfig.java`**: Added download boost modes (`DOWNLOAD_BOOST_OFF = 0`, `DOWNLOAD_BOOST_FAST = 1` [8 streams, default], `DOWNLOAD_BOOST_MAXIMUM = 2` [12 streams]) and preference helpers (`getDownloadBoostMode()`, `setDownloadBoostMode()`).

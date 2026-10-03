@@ -21,6 +21,7 @@ public class DekogramConfig {
     public static final boolean HIDE_STORIES = true;
     public static final boolean CONFIRM_SEND_STICKER = true;
     public static final boolean CONFIRM_START_CALL = true;
+    public static final boolean ALWAYS_SHOW_DOWNLOADS_ICON = true;
 
     // Media & Storage
     public static final boolean AUTO_EXPORT_MEDIA = true;
