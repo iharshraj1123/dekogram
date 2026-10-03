@@ -23,21 +23,21 @@
 
 ---
 
-## ✨ Key Features
+## Key Features
 
-### ⚡ High-Speed Download Boost
+### High-Speed Download Boost
 * **Parallel Chunk Streaming**: Requests multiple file parts concurrently across dual MTProto download sockets, bypassing single-stream server throttling.
 * **512 KB Chunk Sizing**: 4x larger chunk blocks compared to stock Telegram's 128 KB, significantly minimizing network round-trip request overhead on high-speed connections.
 * **Smooth Throughput**: Configured out of the box with **Fast (8 Streams)** mode for steady, reliable speed, with user controls in *Settings > Data and Storage > Download Speed Boost* (Disabled / Fast / Maximum).
 
-### 📂 Zero-Waste Single-File Storage
+### Zero-Waste Single-File Storage
 * **50% Storage Savings**: Stock Telegram downloads files twice—first to the hidden private app sandbox (`Android/data/...`) and again when saving to gallery. Dekogram immediately relinks the database to your public file and purges the internal cached duplicate.
 * **Direct Public Export**: Completed downloads route directly to public storage upon finishing:
   * **Videos**: `Downloads/Dekogram/Videos/`
   * **Documents & Files**: `Downloads/Dekogram/`
   * **Photos**: `Pictures/Dekogram/`
 
-### 🏷️ Configurable File Naming & Post Timestamps
+### Configurable File Naming & Post Timestamps
 * **Custom Video Naming**: Choose how videos are named in *Data and Storage* settings:
   * *Original File Name* (preserves creator's exact title)
   * *File ID* (clean, unique identifier)
@@ -45,31 +45,31 @@
 * **Post Timestamp Synchronization**: Synchronizes filesystem `lastModified` and Android MediaStore metadata (`DATE_TAKEN`, `DATE_MODIFIED`, `DATE_ADDED`) with the **original Telegram post date**. Your gallery and media players display media in true chronological order.
 * **Smart Conflict Resolution**: Replaces clunky `VID_` prefixes with compact, clean 5-digit random suffixes (`_XXXXX`) only when a filename collision occurs.
 
-### 🔓 100% Unrestricted Content & Screen Capture
+### Unrestricted Content & Screen Capture
 * **Bypass Forward & Save Restrictions**: Channels and groups with `noforwards` enabled can no longer block you from saving. "Save to Gallery", "Save to Downloads", and sharing options are permanently unlocked.
 * **Save Disappearing & TTL Media**: The save button remains fully accessible on expiring self-destructing photos and videos.
 * **Global Screen Capture**: Cleared `FLAG_SECURE` app-wide. Screenshots and screen recording work everywhere, including restricted channels and secret chats.
 
-### 🔔 Persistent Background Downloads
+### Persistent Background Downloads
 * **Dedicated Foreground Service**: Equipped with an Android foreground service, `PARTIAL_WAKE_LOCK`, and high-performance Wi-Fi lock.
 * **Zero Timeout Pauses**: Downloads continue uninterrupted with an ongoing notification progress bar when your screen turns off or the app is minimized.
 
-### 👥 10 Multi-Accounts
+### Multi-Account Limit (10 Accounts)
 * **Native C++ & Java Limit Expansion**: Native MTProto connection management expanded from the official 3-account limit to support **10 accounts simultaneously**.
 
-### 🛡️ Clean Privacy & Anti-Distraction
+### Privacy & Clean UI Defaults
 * **Hidden Stories Bar**: Completely removes the top stories bar with 0px layout shift.
 * **Zero Ads & Sponsored Messages**: Sponsored messages and video ad network requests are completely blocked at the source.
 * **Stripped Trackers**: Completely purged Microsoft AppCenter telemetry and Google Firebase UserActions background indexing.
 * **Accidental Action Guards**: Confirmation dialogs before initiating voice/video calls or sending stickers.
 * **Review Voice/Video Notes**: Releasing touch on voice or video note recording enters review draft mode instead of firing instantly.
 
-### 🎬 External Player Integration
+### External Player Integration
 * Added an instant **"Open in..."** option to all video menus, streaming or opening clips directly into VLC, MX Player, MPV, or your external player of choice.
 
 ---
 
-## 📊 Dekogram vs. Stock Telegram
+## Dekogram vs. Stock Telegram
 
 | Feature | Dekogram | Stock Telegram |
 | :--- | :---: | :---: |
@@ -88,7 +88,7 @@
 
 ---
 
-## 📲 Installation & Updates
+## Installation & Updates
 
 ### Option 1: Direct Download (Recommended)
 1. Download `Dekogram.apk` directly from [Latest Release](https://github.com/iharshraj1123/dekogram/releases/latest).
