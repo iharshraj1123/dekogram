@@ -5,7 +5,7 @@
 </p>
 
 <p align="center">
-  <strong>A high-performance Telegram Android client specialized in unrestricted downloads, zero-redundancy storage, and privacy freedom.</strong>
+  <strong>A high-performance Telegram Android client specialized in high-speed downloads, zero-redundancy storage, and unrestricted media saving.</strong>
 </p>
 
 <p align="center">
@@ -19,121 +19,94 @@
 
 ## Overview
 
-**Dekogram** is an independent, clean fork of the official Telegram Android app (`DrKLO/Telegram`). It re-engineers Telegram's media pipeline from the ground up to eliminate artificial download restrictions, double-storage caching waste, and forced cloud auto-downloads—all while preserving official MTProto protocol compatibility, full end-to-end encryption, and a zero-warning Google Play Protect footprint.
+**Dekogram** is an independent, power-user fork of the official Telegram Android app (`DrKLO/Telegram`). It re-engineers Telegram's download engine, media pipeline, and storage architecture to eliminate artificial speed throttling, double-storage caching waste, forced cloud auto-downloads, and content-saving restrictions—all while preserving full official MTProto compatibility, instant push notifications, and secret chat encryption.
 
 ---
 
-## The Specialized Download Engine
+## ✨ Key Features
 
-Unlike stock Telegram, Dekogram is specifically built for power downloaders and archival enthusiasts:
+### ⚡ High-Speed Download Boost
+* **Parallel Chunk Streaming**: Requests multiple file parts concurrently across dual MTProto download sockets, bypassing single-stream server throttling.
+* **512 KB Chunk Sizing**: 4x larger chunk blocks compared to stock Telegram's 128 KB, significantly minimizing network round-trip request overhead on high-speed connections.
+* **Smooth Throughput**: Configured out of the box with **Fast (8 Streams)** mode for steady, reliable speed, with user controls in *Settings > Data and Storage > Download Speed Boost* (Disabled / Fast / Maximum).
 
-### Direct-to-Storage Auto Export
-Completed video and document downloads automatically bypass hidden app sandbox folders and route straight to your public storage:
-* **Videos**: `Downloads/Dekogram/Videos/`
-* **Documents & Files**: `Downloads/Dekogram/`
-* **Images**: `Pictures/Dekogram/`
+### 📂 Zero-Waste Single-File Storage
+* **50% Storage Savings**: Stock Telegram downloads files twice—first to the hidden private app sandbox (`Android/data/...`) and again when saving to gallery. Dekogram immediately relinks the database to your public file and purges the internal cached duplicate.
+* **Direct Public Export**: Completed downloads route directly to public storage upon finishing:
+  * **Videos**: `Downloads/Dekogram/Videos/`
+  * **Documents & Files**: `Downloads/Dekogram/`
+  * **Photos**: `Pictures/Dekogram/`
 
-### Single-File Zero Waste Storage
-Stock Telegram downloads files twice: once in the private internal sandbox (`Android/data/...`) and once again when you tap "Save to gallery". 
-* **Dekogram eliminates duplicate storage consumption**: When a download completes, the app relinks Telegram's internal file database directly to the public copy in `Downloads/Dekogram/Videos/` and purges the internal cached duplicate. You get **50% storage savings**.
+### 🏷️ Configurable File Naming & Post Timestamps
+* **Custom Video Naming**: Choose how videos are named in *Data and Storage* settings:
+  * *Original File Name* (preserves creator's exact title)
+  * *File ID* (clean, unique identifier)
+  * *File ID + File Name*
+* **Post Timestamp Synchronization**: Synchronizes filesystem `lastModified` and Android MediaStore metadata (`DATE_TAKEN`, `DATE_MODIFIED`, `DATE_ADDED`) with the **original Telegram post date**. Your gallery and media players display media in true chronological order.
+* **Smart Conflict Resolution**: Replaces clunky `VID_` prefixes with compact, clean 5-digit random suffixes (`_XXXXX`) only when a filename collision occurs.
 
-### Clean Original Filenames
-* Eliminates Telegram’s forced `VID_2026xxxx` and generic hashes.
-* Preserves original document and clip names exactly as uploaded by channel authors.
-* Uses clean collision handling: appends a compact random 5-digit suffix (`_XXXXX`) **only** when a duplicate filename already exists.
+### 🔓 100% Unrestricted Content & Screen Capture
+* **Bypass Forward & Save Restrictions**: Channels and groups with `noforwards` enabled can no longer block you from saving. "Save to Gallery", "Save to Downloads", and sharing options are permanently unlocked.
+* **Save Disappearing & TTL Media**: The save button remains fully accessible on expiring self-destructing photos and videos.
+* **Global Screen Capture**: Cleared `FLAG_SECURE` app-wide. Screenshots and screen recording work everywhere, including restricted channels and secret chats.
 
-### Post Timestamp Synchronization
-* Synchronizes filesystem `lastModified` and Android MediaStore metadata (`DATE_TAKEN`, `DATE_MODIFIED`, `DATE_ADDED`) with the **original Telegram post date**.
-* Your gallery, VLC, and MX Player sort media chronologically by **when it was originally posted**, not when you downloaded it.
+### 🔔 Persistent Background Downloads
+* **Dedicated Foreground Service**: Equipped with an Android foreground service, `PARTIAL_WAKE_LOCK`, and high-performance Wi-Fi lock.
+* **Zero Timeout Pauses**: Downloads continue uninterrupted with an ongoing notification progress bar when your screen turns off or the app is minimized.
 
-### Uninterrupted Background Downloads
-* Features an Android foreground service with a `PARTIAL_WAKE_LOCK` and high-performance Wi-Fi lock.
-* Downloads run continuously with an ongoing notification progress bar—**no timeouts or pausing** when your screen turns off or the app is minimized.
+### 👥 10 Multi-Accounts
+* **Native C++ & Java Limit Expansion**: Native MTProto connection management expanded from the official 3-account limit to support **10 accounts simultaneously**.
 
-### External Player Integration
-* Added an instant **"Open in..."** action to all video menus, streaming or opening clips directly into VLC, MX Player, MPV, or your external player of choice.
+### 🛡️ Clean Privacy & Anti-Distraction
+* **Hidden Stories Bar**: Completely removes the top stories bar with 0px layout shift.
+* **Zero Ads & Sponsored Messages**: Sponsored messages and video ad network requests are completely blocked at the source.
+* **Stripped Trackers**: Completely purged Microsoft AppCenter telemetry and Google Firebase UserActions background indexing.
+* **Accidental Action Guards**: Confirmation dialogs before initiating voice/video calls or sending stickers.
+* **Review Voice/Video Notes**: Releasing touch on voice or video note recording enters review draft mode instead of firing instantly.
 
----
-
-## Unrestricted Freedom & Privacy
-
-* **Restriction Bypass (`noforwards`)**: Bypasses channel and group forward/save blocks. *"Saving content is restricted"* prompts are completely eliminated—Save to Gallery, Save to Downloads, and Sharing are permanently unlocked.
-* **Self-Destructing / TTL Media Saving**: The save button remains fully available even on disappearing or timed photos/videos.
-* **Global Screenshot & Screen Capture Access**: Stripped `FLAG_SECURE` app-wide. Screenshots and screen recording work everywhere, including restricted channels and secret chats.
-* **Tracker & Telemetry Cleaned**: Completely stripped Microsoft AppCenter crash telemetry and Google Firebase UserActions background indexing.
-* **Block Sponsored Messages & Video Ads**: Sponsored channel ads and video network ad units are blocked at the source.
-* **Auto-Download Cloud Killswitch**: Default auto-download presets are initialized to disabled, and Telegram cloud server configs are blocked from turning background media auto-downloads back on.
-
----
-
-## Unique Quirks & Quality-of-Life
-
-| Feature | Dekogram Behavior | Stock Telegram Behavior |
-| :--- | :--- | :--- |
-| **Max Accounts** | **10 Accounts** (Engineered in native C++ & Java) | 3 accounts (5 with Premium) |
-| **Stories Bar** | **Hidden** cleanly with 0px layout shift | Dominates top of chat list |
-| **Accidental Calls** | **Confirmation alert** before initiating calls | Taps call immediately |
-| **Sticker Sends** | **Confirmation preview** before sending stickers | Single tap sends immediately |
-| **Voice / Video Notes** | Touch release enters **review draft** mode | Releases send instantly |
-| **Clean Package ID** | `org.dekogram.messenger` (No Play Protect blocks) | Conflicts with Play Store |
+### 🎬 External Player Integration
+* Added an instant **"Open in..."** option to all video menus, streaming or opening clips directly into VLC, MX Player, MPV, or your external player of choice.
 
 ---
 
-## Autonomous Updates & Upstream Engine
+## 📊 Dekogram vs. Stock Telegram
 
-Dekogram remains synchronized with upstream official Telegram while ensuring custom features never break:
-
-1. **Modular Hook Architecture**:
-   All Dekogram logic resides in an isolated package (`org.telegram.messenger.dekogram`). Patches to official Telegram classes are lightweight 1-line delegates, allowing upstream merges with 90%+ conflict reduction.
-2. **Autonomous Cloud Pipeline**:
-   A scheduled GitHub Actions workflow queries `DrKLO/Telegram` tags every 6 hours. When Telegram releases a new tag, GitHub cloud automatically merges, compiles with ccache, and publishes the new release asset.
-3. **Native In-App Updater**:
-   * Dekogram checks [GitHub Releases](https://github.com/iharshraj1123/dekogram/releases/latest) in the background.
-   * Single-tap on the version text at the bottom of **Settings** checks for updates on demand.
-   * Downloads and installs directly via Android's secure `FileProvider` without needing ADB or a computer.
+| Feature | Dekogram | Stock Telegram |
+| :--- | :---: | :---: |
+| **Download Speed Engine** | **Boosted (8–12 Parallel Streams, 512KB chunks)** | 4 Streams, 128KB chunks |
+| **Download Storage** | **Single copy (Direct to public Downloads)** | Duplicated (Cache + Public copy) |
+| **Restricted Content Saving** | **Permanently Unlocked** | Blocked ("Saving is restricted") |
+| **Expiring / TTL Media Saving** | **Saved with 1 tap** | Blocked |
+| **Screenshots & Recording** | **Allowed everywhere** | Blocked (`FLAG_SECURE`) |
+| **Media File Naming** | **Configurable (Original / ID / ID+Name)** | Forced generic `VID_` prefix |
+| **Post Date Sync** | **Files match original post date** | Files dated when downloaded |
+| **Multi-Accounts** | **10 Accounts** | 3 Accounts (5 with Premium) |
+| **Stories Bar** | **Hidden (Clean UI)** | Always visible |
+| **Sponsored Messages & Ads** | **Blocked** | Displayed in channels |
+| **Background Downloads** | **WakeLock foreground service** | Frequently paused in background |
+| **External Video Player** | **"Open in..." menu for any clip** | Restricted / Internal player only |
 
 ---
 
-## Installation
+## 📲 Installation & Updates
 
-### Option 1: Direct APK Download (Recommended)
-1. Download `Dekogram.apk` directly from the [Latest Release](https://github.com/iharshraj1123/dekogram/releases/latest).
+### Option 1: Direct Download (Recommended)
+1. Download `Dekogram.apk` directly from [Latest Release](https://github.com/iharshraj1123/dekogram/releases/latest).
 2. Tap the downloaded APK to install.
 3. Login using your phone number or QR code.
 
 ### Option 2: Automatic Updates via Obtainium
 1. Install [Obtainium](https://github.com/ImranRXZ/Obtainium).
-2. Add App -> Paste: `https://github.com/iharshraj1123/dekogram`
-3. Obtainium will automatically track releases and notify you whenever a new APK is ready.
+2. Tap **Add App** and paste: `https://github.com/iharshraj1123/dekogram`
+3. Obtainium will automatically track new releases and notify you when updates are available.
 
-### Option 3: Install via ADB
-```bash
-adb push Dekogram.apk /data/local/tmp/app.apk
-adb shell pm install -r -t -d /data/local/tmp/app.apk
-adb shell rm /data/local/tmp/app.apk
-```
-
----
-
-## Building from Source
-
-Dekogram builds the standalone variant target (`:TMessagesProj_AppStandalone:assembleAfatDebug`) optimized for ARM64 (`arm64-v8a`):
-
-### Requirements
-* JDK 17
-* Android SDK 36 (Build Tools 35.0.0)
-* Android NDK `27.2.12479018`
-* CMake `3.22.1`
-
-### Build Command
-```bash
-./gradlew :TMessagesProj_AppStandalone:assembleAfatDebug --no-daemon
-```
-The compiled APK will be located at:
-`TMessagesProj_AppStandalone/build/outputs/apk/afat/debug/app.apk`
+### Option 3: Built-In In-App Updater
+* Dekogram automatically checks for GitHub releases.
+* Tap the version text at the bottom of **Settings** at any time to instantly check for updates and self-install directly inside the app.
 
 ---
 
 ## License
+
 Dekogram is licensed under the **GNU General Public License v2.0 or later** (GPLv2+). See [LICENSE](LICENSE) for details.
-Based on [Telegram for Android](https://github.com/DrKLO/Telegram) by Nikolai Kudashov.
+Based on the official [Telegram for Android](https://github.com/DrKLO/Telegram) source code by Nikolai Kudashov.
